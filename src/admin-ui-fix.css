@@ -1,0 +1,11 @@
+.hradnik-admin-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;column-gap:12px!important;overflow:visible!important;position:relative!important;isolation:isolate!important}
+.hradnik-admin-row-main{min-width:0!important;overflow:hidden!important}
+.hradnik-admin-row-actions{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-end!important;gap:7px!important;flex:0 0 auto!important;min-width:max-content!important;opacity:1!important;visibility:visible!important;position:relative!important;z-index:20!important}
+.hradnik-admin-row-actions button{display:inline-flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:21!important;min-width:44px!important;width:auto!important;height:42px!important;min-height:42px!important;padding:8px 11px!important;border:1px solid #d6dbe5!important;border-radius:11px!important;background:#eef1f6!important;color:#18212c!important;font-size:17px!important;line-height:1!important;box-shadow:0 1px 2px rgba(0,0,0,.06)!important}
+.hradnik-admin-row-actions button:hover{background:#e4e8ef!important;transform:none!important;filter:none!important}
+.hradnik-admin-row-actions .edit{border-color:#c9c0ff!important;background:#f0edff!important}
+.hradnik-admin-row-actions .delete{border-color:#f0c7c7!important;background:#fff0f0!important}
+.hradnik-admin-row-actions .restore{border-color:#bfe2cc!important;background:#ecfaf1!important}
+.hradnik-admin-card{overflow:visible!important;position:relative!important;z-index:1!important}
+.hradnik-admin-list{overflow:visible!important;position:relative!important;z-index:2!important}
+@media(max-width:520px){.hradnik-admin-row-actions{flex-direction:row!important;gap:5px!important}.hradnik-admin-row-actions button{min-width:42px!important;width:42px!important;padding:8px 0!important}}
