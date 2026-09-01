@@ -6,7 +6,7 @@ const db=createClient(SUPABASE_URL,SUPABASE_KEY)
 const cache=new Map()
 const inflight=new WeakSet()
 const enriched=new WeakSet()
-const esc=(value='')=>String(value).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]))
+const esc=(value='')=>String(value).replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]))
 const normalize=(value='')=>String(value).toLocaleLowerCase('cs-CZ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim()
 
 async function loadInfo(name){
@@ -16,7 +16,10 @@ async function loadInfo(name){
   let row=null
   const exact=await db.from('hradnik_places').select('id,name,info_summary,info_source,info_source_url,info_updated_at,info_confidence').eq('is_visible',true).eq('is_current',true).eq('name',name).maybeSingle()
   if(!exact.error&&exact.data)row=exact.data
-  if(!row){const fallback=await db.from('hradnik_places').select('id,name,info_summary,info_source,info_source_url,info_updated_at,info_confidence').eq('is_visible',true).eq('is_current',true).eq('normalized_name',key).limit(1).maybeSingle();if(!fallback.error)row=fallback.data||null}
+  if(!row){
+    const fallback=await db.from('hradnik_places').select('id,name,info_summary,info_source,info_source_url,info_updated_at,info_confidence').eq('is_visible',true).eq('is_current',true).eq('normalized_name',key).limit(1).maybeSingle()
+    if(!fallback.error)row=fallback.data||null
+  }
   cache.set(key,row)
   return row
 }
