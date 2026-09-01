@@ -5,6 +5,7 @@ const SUPABASE_KEY = 'sb_publishable_v7jeuZC-MNUEO5nfE5xcUQ_Pu9pT-X_'
 const db = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const photoCache = new Map()
+const lookupPromises = new Map()
 let placesLoaded = false
 
 function normalize(value = '') {
@@ -43,19 +44,69 @@ async function loadPhotos() {
     const photo = firstPhoto(row)
     if (!photo) continue
     const key = normalize(row.name)
-    if (!photoCache.has(key)) photoCache.set(key, { ...row, photo })
+    if (!photoCache.has(key)) photoCache.set(key, { ...row, photo, source: 'stored' })
   }
+}
+
+async function searchCommons(title) {
+  const key = normalize(title)
+  if (!key) return null
+  if (lookupPromises.has(key)) return lookupPromises.get(key)
+  const promise = (async () => {
+    const queries = [
+      `${title} hrad Česko`,
+      `${title} zámek Česko`,
+      `${title} zřícenina Česko`,
+      title,
+    ]
+    for (const q of queries) {
+      try {
+        const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1400&format=json&origin=*`
+        const response = await fetch(url)
+        if (!response.ok) continue
+        const json = await response.json()
+        const pages = Object.values(json?.query?.pages || {})
+        for (const page) {
+          const info = page?.imageinfo?.[0]
+          const imageUrl = info?.thumburl || info?.url
+          if (!imageUrl || !/^https?:\/\//i.test(imageUrl)) continue
+          const meta = info.extmetadata || {}
+          const license = String(meta.LicenseShortName?.value || meta.License?.value || '').replace(/<[^>]+>/g, '').trim()
+          const artist = String(meta.Artist?.value || '').replace(/<[^>]+>/g, '').trim()
+          const result = {
+            photo: imageUrl.replace(/^http:/, 'https:'),
+            photo_credit: artist,
+            photo_license: license,
+            photo_source_url: info.descriptionurl || `https://commons.wikimedia.org/?curid=${page.pageid}`,
+            source: 'commons',
+          }
+          // Prefer results whose title is close to the requested place name.
+          const pageTitle = String(page.title || '').toLocaleLowerCase('cs-CZ')
+          if (pageTitle.includes(key.split(' ')[0])) {
+            photoCache.set(key, result)
+            return result
+          }
+          if (!photoCache.has(key)) photoCache.set(key, result)
+        }
+        const found = photoCache.get(key)
+        if (found) return found
+      } catch {
+        // Try the next query instead of breaking the detail view.
+      }
+    }
+    photoCache.set(key, null)
+    return null
+  })()
+  lookupPromises.set(key, promise)
+  return promise
 }
 
 function getNameFromCard(card) {
   return card.querySelector('.placeCopy b')?.textContent?.replace('⭐', '').trim() || ''
 }
 
-function addDetailPhoto(sheet) {
-  const title = sheet.querySelector('h1')?.textContent?.trim()
-  if (!title || sheet.querySelector('.detailPhoto')) return
-  const hit = photoCache.get(normalize(title))
-  if (!hit) return
+function renderPhoto(sheet, title, hit) {
+  if (!hit || sheet.querySelector('.detailPhoto')) return
   const img = document.createElement('img')
   img.className = 'detailPhoto'
   img.src = hit.photo
@@ -65,38 +116,58 @@ function addDetailPhoto(sheet) {
   img.referrerPolicy = 'no-referrer'
   img.onerror = () => img.remove()
   const icon = sheet.querySelector('.bigIcon')
-  if (icon) {
-    icon.replaceWith(img)
-  } else {
-    sheet.prepend(img)
-  }
-  if (hit.photo_credit || hit.photo_license) {
+  if (icon) icon.replaceWith(img)
+  else sheet.prepend(img)
+
+  if (hit.photo_credit || hit.photo_license || hit.photo_source_url) {
     const p = document.createElement('div')
     p.className = 'photoCredit'
     const parts = []
     if (hit.photo_credit) parts.push(`Foto: ${hit.photo_credit}`)
     if (hit.photo_license) parts.push(hit.photo_license)
-    if (hit.photo_source_url) parts.push(`<a href="${hit.photo_source_url}" target="_blank" rel="noreferrer">zdroj</a>`)
-    p.innerHTML = parts.join(' · ')
+    if (hit.photo_source_url) {
+      const a = document.createElement('a')
+      a.href = hit.photo_source_url
+      a.target = '_blank'
+      a.rel = 'noreferrer'
+      a.textContent = 'zdroj'
+      p.append(' · ')
+      p.appendChild(a)
+    }
+    const label = parts[0] || ''
+    if (label) p.insertBefore(document.createTextNode(label), p.firstChild)
     img.after(p)
   }
 }
 
+async function addDetailPhoto(sheet) {
+  const title = sheet.querySelector('h1')?.textContent?.trim()
+  if (!title || sheet.querySelector('.detailPhoto')) return
+  const key = normalize(title)
+  const stored = photoCache.get(key)
+  if (stored) {
+    renderPhoto(sheet, title, stored)
+    return
+  }
+  if (stored === null) return
+  const found = await searchCommons(title)
+  if (found && sheet.isConnected) renderPhoto(sheet, title, found)
+}
+
 async function enhance() {
   await loadPhotos()
-  document.querySelectorAll('.sheet').forEach(addDetailPhoto)
+  document.querySelectorAll('.sheet').forEach((sheet) => { void addDetailPhoto(sheet) })
 }
 
 const observer = new MutationObserver(() => {
-  document.querySelectorAll('.sheet').forEach(addDetailPhoto)
+  document.querySelectorAll('.sheet').forEach((sheet) => { void addDetailPhoto(sheet) })
 })
 observer.observe(document.body, { childList: true, subtree: true })
 
-window.addEventListener('DOMContentLoaded', enhance)
-setTimeout(enhance, 800)
-setTimeout(enhance, 2500)
+window.addEventListener('DOMContentLoaded', () => { void enhance() })
+setTimeout(() => { void enhance() }, 800)
+setTimeout(() => { void enhance() }, 2500)
 
-// Make long place names easier to scan on small screens without changing the app logic.
 const cardObserver = new MutationObserver(() => {
   document.querySelectorAll('.place').forEach((card) => {
     const title = getNameFromCard(card)
