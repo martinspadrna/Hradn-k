@@ -149,11 +149,12 @@ function haversineKm(aLat, aLon, bLat, bLon) {
 }
 
 async function loadPlacesForNearby() {
+  if (allPlaces.length) return allPlaces
   const rows = []
   for (let from = 0; ; from += 1000) {
     const { data, error } = await db
       .from('hradnik_places')
-      .select('id,name,kind,district,region,latitude,longitude,character')
+      .select('id,name,kind,district,region,latitude,longitude')
       .eq('is_visible', true)
       .eq('is_current', true)
       .range(from, from + 999)
@@ -171,8 +172,7 @@ function createNearbyUi() {
   panel.className = 'card nearbyPanel'
   panel.id = 'nearbyControl'
   panel.innerHTML = `<div class="nearbyRow"><div><p class="eyebrow">VÝLET</p><h2>📍 Co máme poblíž?</h2><p class="muted">Najdi nejbližší hrady, zámky a zříceniny podle aktuální polohy.</p></div><button id="nearbyButton" class="primary nearbyButton">Najít v okolí</button></div>`
-  const hero = document.querySelector('.hero')
-  hero?.after(panel)
+  document.querySelector('.hero')?.after(panel)
   panel.querySelector('#nearbyButton').addEventListener('click', openNearby)
 }
 
@@ -186,14 +186,14 @@ async function openNearby() {
   }
   navigator.geolocation.getCurrentPosition(async position => {
     try {
-      const places = allPlaces.length ? allPlaces : await loadPlacesForNearby()
+      const places = await loadPlacesForNearby()
       const lat = position.coords.latitude
       const lon = position.coords.longitude
       const ranked = places
         .filter(p => Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)))
         .map(p => ({ ...p, distance: haversineKm(lat, lon, Number(p.latitude), Number(p.longitude)) }))
         .sort((a, b) => a.distance - b.distance)
-      renderNearbyModal(ranked, 50, 'all')
+      renderNearbyModal(ranked)
     } catch (e) {
       showNearbyMessage(`Nepodařilo se načíst místa: ${e.message}`)
     } finally {
@@ -213,26 +213,38 @@ function showNearbyMessage(message) {
   setTimeout(() => box.remove(), 5000)
 }
 
-function renderNearbyModal(ranked, radius, stateFilter) {
+function renderNearbyModal(ranked) {
   document.querySelector('#nearbyModal')?.remove()
   const modal = document.createElement('div')
   modal.className = 'overlay'
   modal.id = 'nearbyModal'
-  modal.innerHTML = `<div class="sheet nearbySheet"><div class="nearbyHeader"><div><p class="eyebrow">V OKOLÍ</p><h1>Nejbližší památky</h1></div><button id="nearbyClose" class="close">✕</button></div><div class="nearbyControls"><label>Dosah<select id="nearbyRadius"><option value="10">10 km</option><option value="25">25 km</option><option value="50" selected>50 km</option><option value="100">100 km</option></select></label><label>Stav<select id="nearbyState"><option value="all">Vše</option><option value="none">Nenavštíveno</option><option value="want">Chceme navštívit</option></select></label></div><div id="nearbyList" class="list"></div></div>`
+  modal.innerHTML = `<div class="sheet nearbySheet"><div class="nearbyHeader"><div><p class="eyebrow">V OKOLÍ</p><h1>Nejbližší památky</h1></div><button id="nearbyClose" class="close">✕</button></div><div class="nearbyControls"><label>Dosah<select id="nearbyRadius"><option value="10">10 km</option><option value="25">25 km</option><option value="50" selected>50 km</option><option value="100">100 km</option></select></label></div><div id="nearbyList" class="list"></div></div>`
   document.body.appendChild(modal)
+
   const update = () => {
-    const r = Number(document.querySelector('#nearbyRadius').value)
-    const sf = document.querySelector('#nearbyState').value
-    const getMine = window.__hradnikMineState
-    const filtered = ranked.filter(p => p.distance <= r && (sf === 'all' || !getMine || (sf === 'none' ? !getMine.get(String(p.id)) || getMine.get(String(p.id)).status === 'none' : getMine.get(String(p.id))?.status === sf)))
+    const radius = Number(document.querySelector('#nearbyRadius').value)
     const list = document.querySelector('#nearbyList')
-    list.innerHTML = filtered.slice(0, 30).map(p => `<button class="nearbyPlace" data-place="${p.id}"><span class="nearbyIcon">🏰</span><span><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.kind || 'Historické místo')} · ${p.distance.toFixed(1).replace('.',',')} km</small></span></button>`).join('') || '<div class="empty">V tomto dosahu nic nenalezeno.</div>'
-    list.querySelectorAll('[data-place]').forEach(btn => btn.addEventListener('click', () => { modal.remove(); document.querySelector(`[aria-label*="${btn.dataset.place}"]`)?.click() }))
+    const items = ranked.filter(p => p.distance <= radius)
+    list.innerHTML = items.slice(0, 40).map(p => `<button class="nearbyPlace" data-name="${escapeHtml(p.name)}"><span class="nearbyIcon">${iconFor(p.kind)}</span><span><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.kind || 'Historické místo')} · ${p.distance.toFixed(1).replace('.',',')} km</small></span></button>`).join('') || '<div class="empty">V tomto dosahu nic nenalezeno.</div>'
+    list.querySelectorAll('[data-name]').forEach(btn => btn.addEventListener('click', () => {
+      const title = btn.dataset.name
+      modal.remove()
+      const match = [...document.querySelectorAll('.place')].find(card => normalize(getNameFromCard(card)) === normalize(title))
+      match?.querySelector('.placeMain')?.click()
+    }))
   }
+
   document.querySelector('#nearbyClose').onclick = () => modal.remove()
   document.querySelector('#nearbyRadius').onchange = update
-  document.querySelector('#nearbyState').onchange = update
   update()
+}
+
+function getNameFromCard(card) {
+  return card.querySelector('.placeCopy b')?.textContent?.replace('⭐', '').trim() || ''
+}
+
+function iconFor(kind) {
+  return ({Zřícenina:'🧱',Tvrz:'🛡️',Klášter:'⛪',Zámek:'🏯','Opevněné místo':'🏛️'}[kind] || '🏰')
 }
 
 function escapeHtml(value = '') {
