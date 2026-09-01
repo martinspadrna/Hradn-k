@@ -4,7 +4,9 @@ const SUPABASE_URL='https://cgshssdjgzzuprlwnabl.supabase.co'
 const SUPABASE_KEY='sb_publishable_v7jeuZC-MNUEO5nfE5xcUQ_Pu9pT-X_'
 const db=createClient(SUPABASE_URL,SUPABASE_KEY)
 const cache=new Map()
-const esc=(value='')=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+const inflight=new WeakSet()
+const enriched=new WeakSet()
+const esc=(value='')=>String(value).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]))
 const normalize=(value='')=>String(value).toLocaleLowerCase('cs-CZ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim()
 
 async function loadInfo(name){
@@ -20,32 +22,42 @@ async function loadInfo(name){
 }
 
 async function enrichSheet(sheet){
-  if(!sheet?.isConnected)return
+  if(!sheet?.isConnected||inflight.has(sheet)||enriched.has(sheet))return
   const title=sheet.querySelector('h1')?.textContent?.trim()
-  if(!title)return
-  const row=await loadInfo(title)
   const grid=sheet.querySelector('.detailGrid')
-  if(!grid)return
-  const cards=[...grid.querySelectorAll('.card')]
-  const basic=cards.find(c=>/Základní informace/i.test(c.querySelector('h3')?.textContent||''))||cards[0]
-  if(!basic)return
-  let p=basic.querySelector('p')
-  if(!p){p=document.createElement('p');basic.appendChild(p)}
-  if(row?.info_summary){
-    p.textContent=row.info_summary
-    let meta=basic.querySelector('.infoMeta')
-    if(!meta){meta=document.createElement('small');meta.className='infoMeta';basic.appendChild(meta)}
-    const source=row.info_source_url?`<a href="${esc(row.info_source_url)}" target="_blank" rel="noreferrer">${esc(row.info_source||'Zdroj')}</a>`:esc(row.info_source||'')
-    const date=row.info_updated_at?new Date(row.info_updated_at).toLocaleDateString('cs-CZ'):''
-    meta.innerHTML=`${source}${source&&date?' · ':''}${date?`ověřeno ${date}`:''}`
-  }else if(!p.textContent?.trim()||/Popis zatím není ověřený/i.test(p.textContent)){
-    p.textContent='Informace se právě doplňují. Zatím nemáme ověřený podrobný popis této památky.'
+  if(!title||!grid)return
+
+  inflight.add(sheet)
+  try{
+    const row=await loadInfo(title)
+    if(!sheet.isConnected)return
+    const cards=[...grid.querySelectorAll('.card')]
+    const basic=cards.find(c=>/Základní informace/i.test(c.querySelector('h3')?.textContent||''))||cards[0]
+    if(!basic)return
+    let p=basic.querySelector('p')
+    if(!p){p=document.createElement('p');basic.appendChild(p)}
+    if(row?.info_summary){
+      if(p.textContent!==row.info_summary)p.textContent=row.info_summary
+      let meta=basic.querySelector('.infoMeta')
+      if(!meta){meta=document.createElement('small');meta.className='infoMeta';basic.appendChild(meta)}
+      const source=row.info_source_url?`<a href="${esc(row.info_source_url)}" target="_blank" rel="noreferrer">${esc(row.info_source||'Zdroj')}</a>`:esc(row.info_source||'')
+      const date=row.info_updated_at?new Date(row.info_updated_at).toLocaleDateString('cs-CZ'):''
+      const nextMeta=`${source}${source&&date?' · ':''}${date?`ověřeno ${date}`:''}`
+      if(meta.innerHTML!==nextMeta)meta.innerHTML=nextMeta
+    }else if(!p.textContent?.trim()||/Popis zatím není ověřený/i.test(p.textContent)){
+      const fallback='Informace se právě doplňují. Zatím nemáme ověřený podrobný popis této památky.'
+      if(p.textContent!==fallback)p.textContent=fallback
+    }
+    sheet.dataset.infoEnriched='1'
+    enriched.add(sheet)
+  }finally{
+    inflight.delete(sheet)
   }
-  const old=sheet.querySelector('.infoSummaryCard')
-  if(old)old.remove()
 }
 
-function scan(){document.querySelectorAll('.sheet').forEach(s=>{void enrichSheet(s)})}
+function scan(){
+  document.querySelectorAll('.sheet').forEach(s=>{void enrichSheet(s)})
+}
 new MutationObserver(scan).observe(document.body,{childList:true,subtree:true})
 window.addEventListener('DOMContentLoaded',scan)
 setTimeout(scan,400)
