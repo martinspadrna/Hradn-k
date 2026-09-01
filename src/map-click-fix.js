@@ -8,6 +8,7 @@ style.textContent = `
   .overlay { z-index: 50000 !important; pointer-events: auto !important; }
   .overlay .sheet { position: relative !important; z-index: 50001 !important; pointer-events: auto !important; }
   .overlay .close { position: relative !important; z-index: 50002 !important; pointer-events: auto !important; }
+  .leaflet-overlay-pane svg path.leaflet-interactive { pointer-events: auto !important; }
 `
 document.head.appendChild(style)
 
@@ -17,6 +18,7 @@ function installMapUx(map) {
 
   let hovered = null
   let lastPoint = null
+  let lastOpenAt = 0
 
   const markers = () => {
     const out = []
@@ -24,12 +26,13 @@ function installMapUx(map) {
       if (!(layer instanceof L.CircleMarker)) return
       if (!layer._map) return
       if (layer.options?.interactive === false) return
+      if (!layer.options?.hradnikPlaceId) return
       out.push(layer)
     })
     return out
   }
 
-  const nearestMarker = (containerPoint) => {
+  const nearestMarker = (containerPoint, maxDistance = 28) => {
     if (!containerPoint) return null
     let nearest = null
     let nearestPx = Infinity
@@ -39,7 +42,7 @@ function installMapUx(map) {
       const dx = p.x - containerPoint.x
       const dy = p.y - containerPoint.y
       const px = Math.hypot(dx, dy)
-      const hitRadius = Math.max(17, Number(layer.options?.radius || 6) + 11)
+      const hitRadius = Math.max(maxDistance, Number(layer.options?.radius || 6) + 14)
       if (px <= hitRadius && px < nearestPx) {
         nearest = layer
         nearestPx = px
@@ -71,6 +74,18 @@ function installMapUx(map) {
     openTooltip(hovered)
   }
 
+  const openMarker = layer => {
+    if (!layer) return false
+    const now = Date.now()
+    if (now - lastOpenAt < 250) return true
+    lastOpenAt = now
+    if (typeof layer._hradnikOpen === 'function') {
+      layer._hradnikOpen()
+      return true
+    }
+    return false
+  }
+
   map.on('layeradd', event => {
     const layer = event.layer
     if (!(layer instanceof L.CircleMarker)) return
@@ -79,7 +94,11 @@ function installMapUx(map) {
     layer._hradnikUxBound = true
 
     const tooltip = layer.getTooltip?.()
-    if (tooltip) tooltip.options.sticky = true
+    if (tooltip) {
+      tooltip.options.sticky = true
+      tooltip.options.permanent = false
+      tooltip.options.interactive = false
+    }
 
     layer.on('mouseover', () => setHovered(layer))
     layer.on('mouseout', () => {
@@ -90,9 +109,8 @@ function installMapUx(map) {
     })
     layer.on('touchstart', () => setHovered(layer))
 
-    // Keep the application's own marker click handler working, but stop the
-    // click from also closing/changing the map state underneath the detail UI.
     layer.on('click', event => {
+      openMarker(layer)
       if (event?.originalEvent) L.DomEvent.stopPropagation(event.originalEvent)
     })
   })
@@ -100,6 +118,16 @@ function installMapUx(map) {
   map.on('mousemove', event => {
     lastPoint = event.containerPoint
     setHovered(nearestMarker(lastPoint))
+  })
+
+  // Desktop fallback: if the mouse click misses the tiny SVG circle,
+  // resolve the closest monument within a comfortable hit area.
+  map.on('click', event => {
+    const target = event?.originalEvent?.target
+    if (target && target.closest?.('.leaflet-interactive')) return
+    const layer = nearestMarker(event.containerPoint, 30)
+    if (!layer) return
+    openMarker(layer)
   })
 
   map.on('zoomend moveend', () => {
