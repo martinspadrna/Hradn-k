@@ -4,10 +4,12 @@ import { createClient } from '@supabase/supabase-js'
 const SUPABASE_URL = 'https://cgshssdjgzzuprlwnabl.supabase.co'
 const SUPABASE_KEY = 'sb_publishable_v7jeuZC-MNUEO5nfE5xcUQ_Pu9pT-X_'
 const db = createClient(SUPABASE_URL, SUPABASE_KEY)
+const PHOTO_URL = `${SUPABASE_URL}/functions/v1/hradnik-photo`
 
 const photoCache = new Map()
 const lookupPromises = new Map()
 let placesLoaded = false
+let allPlaces = []
 
 function normalize(value = '') {
   return String(value)
@@ -26,7 +28,7 @@ function firstPhoto(row) {
   return url ? url.replace(/^http:/, 'https:') : ''
 }
 
-async function loadPhotos() {
+async function loadPhotoRows() {
   if (placesLoaded) return
   placesLoaded = true
   const rows = []
@@ -49,60 +51,41 @@ async function loadPhotos() {
   }
 }
 
-async function searchCommons(title) {
+async function findPhoto(title) {
   const key = normalize(title)
   if (!key) return null
+  const cached = photoCache.get(key)
+  if (cached) return cached
+  if (cached === null) return null
   if (lookupPromises.has(key)) return lookupPromises.get(key)
   const promise = (async () => {
-    const queries = [
-      `${title} hrad Česko`,
-      `${title} zámek Česko`,
-      `${title} zřícenina Česko`,
-      title,
-    ]
-    for (const q of queries) {
-      try {
-        const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1400&format=json&origin=*`
-        const response = await fetch(url)
-        if (!response.ok) continue
-        const json = await response.json()
-        const pages = Object.values(json?.query?.pages || {})
-        for (const page of pages) {
-          const info = page?.imageinfo?.[0]
-          const imageUrl = info?.thumburl || info?.url
-          if (!imageUrl || !/^https?:\/\//i.test(imageUrl)) continue
-          const meta = info.extmetadata || {}
-          const license = String(meta.LicenseShortName?.value || meta.License?.value || '').replace(/<[^>]+>/g, '').trim()
-          const artist = String(meta.Artist?.value || '').replace(/<[^>]+>/g, '').trim()
-          const result = {
-            photo: imageUrl.replace(/^http:/, 'https:'),
-            photo_credit: artist,
-            photo_license: license,
-            photo_source_url: info.descriptionurl || `https://commons.wikimedia.org/?curid=${page.pageid}`,
-            source: 'commons',
-          }
-          const pageTitle = String(page.title || '').toLocaleLowerCase('cs-CZ')
-          if (pageTitle.includes(key.split(' ')[0])) {
-            photoCache.set(key, result)
-            return result
-          }
-          if (!photoCache.has(key)) photoCache.set(key, result)
-        }
-        const found = photoCache.get(key)
-        if (found) return found
-      } catch {
-        // Continue to the next search phrase.
+    try {
+      const response = await fetch(PHOTO_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: title }),
+      })
+      const data = await response.json().catch(() => null)
+      if (!response.ok || !data?.url) {
+        photoCache.set(key, null)
+        return null
       }
+      const result = {
+        photo: String(data.url).replace(/^http:/, 'https:'),
+        photo_credit: data.credit || '',
+        photo_license: data.license || '',
+        photo_source_url: data.source_url || '',
+        source: 'wikimedia',
+      }
+      photoCache.set(key, result)
+      return result
+    } catch {
+      photoCache.set(key, null)
+      return null
     }
-    photoCache.set(key, null)
-    return null
   })()
   lookupPromises.set(key, promise)
   return promise
-}
-
-function getNameFromCard(card) {
-  return card.querySelector('.placeCopy b')?.textContent?.replace('⭐', '').trim() || ''
 }
 
 function renderPhoto(sheet, title, hit) {
@@ -143,35 +126,130 @@ function renderPhoto(sheet, title, hit) {
 async function addDetailPhoto(sheet) {
   const title = sheet.querySelector('h1')?.textContent?.trim()
   if (!title || sheet.querySelector('.detailPhoto')) return
+  await loadPhotoRows()
   const key = normalize(title)
   const stored = photoCache.get(key)
   if (stored) {
     renderPhoto(sheet, title, stored)
     return
   }
-  if (stored === null) return
-  const found = await searchCommons(title)
+  const found = await findPhoto(title)
   if (found && sheet.isConnected) renderPhoto(sheet, title, found)
 }
 
-async function enhance() {
-  await loadPhotos()
-  document.querySelectorAll('.sheet').forEach((sheet) => { void addDetailPhoto(sheet) })
+function haversineKm(aLat, aLon, bLat, bLon) {
+  const R = 6371
+  const toRad = x => x * Math.PI / 180
+  const dLat = toRad(bLat - aLat)
+  const dLon = toRad(bLon - aLon)
+  const lat1 = toRad(aLat)
+  const lat2 = toRad(bLat)
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)))
+}
+
+async function loadPlacesForNearby() {
+  const rows = []
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await db
+      .from('hradnik_places')
+      .select('id,name,kind,district,region,latitude,longitude,character')
+      .eq('is_visible', true)
+      .eq('is_current', true)
+      .range(from, from + 999)
+    if (error) throw error
+    rows.push(...(data || []))
+    if (!data || data.length < 1000) break
+  }
+  allPlaces = rows
+  return rows
+}
+
+function createNearbyUi() {
+  if (document.querySelector('#nearbyControl') || !document.querySelector('.hero')) return
+  const panel = document.createElement('section')
+  panel.className = 'card nearbyPanel'
+  panel.id = 'nearbyControl'
+  panel.innerHTML = `<div class="nearbyRow"><div><p class="eyebrow">VÝLET</p><h2>📍 Co máme poblíž?</h2><p class="muted">Najdi nejbližší hrady, zámky a zříceniny podle aktuální polohy.</p></div><button id="nearbyButton" class="primary nearbyButton">Najít v okolí</button></div>`
+  const hero = document.querySelector('.hero')
+  hero?.after(panel)
+  panel.querySelector('#nearbyButton').addEventListener('click', openNearby)
+}
+
+async function openNearby() {
+  const button = document.querySelector('#nearbyButton')
+  if (button) { button.disabled = true; button.textContent = 'Zjišťuji polohu…' }
+  if (!navigator.geolocation) {
+    showNearbyMessage('Tento prohlížeč nepodporuje zjištění polohy.')
+    if (button) { button.disabled = false; button.textContent = 'Najít v okolí' }
+    return
+  }
+  navigator.geolocation.getCurrentPosition(async position => {
+    try {
+      const places = allPlaces.length ? allPlaces : await loadPlacesForNearby()
+      const lat = position.coords.latitude
+      const lon = position.coords.longitude
+      const ranked = places
+        .filter(p => Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)))
+        .map(p => ({ ...p, distance: haversineKm(lat, lon, Number(p.latitude), Number(p.longitude)) }))
+        .sort((a, b) => a.distance - b.distance)
+      renderNearbyModal(ranked, 50, 'all')
+    } catch (e) {
+      showNearbyMessage(`Nepodařilo se načíst místa: ${e.message}`)
+    } finally {
+      if (button) { button.disabled = false; button.textContent = 'Najít v okolí' }
+    }
+  }, error => {
+    showNearbyMessage(error.code === 1 ? 'Poloha nebyla povolena. Povol ji pro Hradník v nastavení prohlížeče.' : 'Poloha se nepodařila zjistit.')
+    if (button) { button.disabled = false; button.textContent = 'Najít v okolí' }
+  }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 120000 })
+}
+
+function showNearbyMessage(message) {
+  const box = document.createElement('div')
+  box.className = 'nearbyToast'
+  box.textContent = message
+  document.body.appendChild(box)
+  setTimeout(() => box.remove(), 5000)
+}
+
+function renderNearbyModal(ranked, radius, stateFilter) {
+  document.querySelector('#nearbyModal')?.remove()
+  const modal = document.createElement('div')
+  modal.className = 'overlay'
+  modal.id = 'nearbyModal'
+  modal.innerHTML = `<div class="sheet nearbySheet"><div class="nearbyHeader"><div><p class="eyebrow">V OKOLÍ</p><h1>Nejbližší památky</h1></div><button id="nearbyClose" class="close">✕</button></div><div class="nearbyControls"><label>Dosah<select id="nearbyRadius"><option value="10">10 km</option><option value="25">25 km</option><option value="50" selected>50 km</option><option value="100">100 km</option></select></label><label>Stav<select id="nearbyState"><option value="all">Vše</option><option value="none">Nenavštíveno</option><option value="want">Chceme navštívit</option></select></label></div><div id="nearbyList" class="list"></div></div>`
+  document.body.appendChild(modal)
+  const update = () => {
+    const r = Number(document.querySelector('#nearbyRadius').value)
+    const sf = document.querySelector('#nearbyState').value
+    const getMine = window.__hradnikMineState
+    const filtered = ranked.filter(p => p.distance <= r && (sf === 'all' || !getMine || (sf === 'none' ? !getMine.get(String(p.id)) || getMine.get(String(p.id)).status === 'none' : getMine.get(String(p.id))?.status === sf)))
+    const list = document.querySelector('#nearbyList')
+    list.innerHTML = filtered.slice(0, 30).map(p => `<button class="nearbyPlace" data-place="${p.id}"><span class="nearbyIcon">🏰</span><span><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.kind || 'Historické místo')} · ${p.distance.toFixed(1).replace('.',',')} km</small></span></button>`).join('') || '<div class="empty">V tomto dosahu nic nenalezeno.</div>'
+    list.querySelectorAll('[data-place]').forEach(btn => btn.addEventListener('click', () => { modal.remove(); document.querySelector(`[aria-label*="${btn.dataset.place}"]`)?.click() }))
+  }
+  document.querySelector('#nearbyClose').onclick = () => modal.remove()
+  document.querySelector('#nearbyRadius').onchange = update
+  document.querySelector('#nearbyState').onchange = update
+  update()
+}
+
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]))
 }
 
 const observer = new MutationObserver(() => {
-  document.querySelectorAll('.sheet').forEach((sheet) => { void addDetailPhoto(sheet) })
+  createNearbyUi()
+  document.querySelectorAll('.sheet').forEach(sheet => { void addDetailPhoto(sheet) })
 })
 observer.observe(document.body, { childList: true, subtree: true })
 
-window.addEventListener('DOMContentLoaded', () => { void enhance() })
-setTimeout(() => { void enhance() }, 800)
-setTimeout(() => { void enhance() }, 2500)
-
-const cardObserver = new MutationObserver(() => {
-  document.querySelectorAll('.place').forEach((card) => {
-    const title = getNameFromCard(card)
-    if (title) card.dataset.hradnikName = normalize(title)
-  })
+window.addEventListener('DOMContentLoaded', () => {
+  void loadPhotoRows()
+  createNearbyUi()
+  setTimeout(createNearbyUi, 600)
+  setTimeout(() => document.querySelectorAll('.sheet').forEach(sheet => { void addDetailPhoto(sheet) }), 800)
 })
-cardObserver.observe(document.body, { childList: true, subtree: true })
+
+setTimeout(createNearbyUi, 1000)
