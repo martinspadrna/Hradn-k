@@ -1,8 +1,7 @@
 import L from 'leaflet'
 
 // Map UX patch: keep monument names available on hover/touch even after
-// the delayed current-location zoom, and ensure map-created overlays never
-// sit above the monument detail sheet/close button.
+// delayed map moves and make monument dots forgiving to click with a mouse.
 const style = document.createElement('style')
 style.textContent = `
   .overlay { z-index: 50000 !important; pointer-events: auto !important; }
@@ -26,7 +25,6 @@ function installMapUx(map) {
       if (!(layer instanceof L.CircleMarker)) return
       if (!layer._map) return
       if (layer.options?.interactive === false) return
-      if (!layer.options?.hradnikPlaceId) return
       out.push(layer)
     })
     return out
@@ -79,8 +77,11 @@ function installMapUx(map) {
     const now = Date.now()
     if (now - lastOpenAt < 250) return true
     lastOpenAt = now
-    if (typeof layer._hradnikOpen === 'function') {
-      layer._hradnikOpen()
+
+    // main.js installs the actual detail handler on each marker.
+    const handlers = layer._events?.click || []
+    if (handlers.length) {
+      layer.fire('click', { latlng: layer.getLatLng(), layer })
       return true
     }
     return false
@@ -109,8 +110,9 @@ function installMapUx(map) {
     })
     layer.on('touchstart', () => setHovered(layer))
 
+    // Keep Leaflet's normal click handling, but stop the click from bubbling
+    // into the map itself and potentially changing the view underneath.
     layer.on('click', event => {
-      openMarker(layer)
       if (event?.originalEvent) L.DomEvent.stopPropagation(event.originalEvent)
     })
   })
@@ -120,8 +122,8 @@ function installMapUx(map) {
     setHovered(nearestMarker(lastPoint))
   })
 
-  // Desktop fallback: if the mouse click misses the tiny SVG circle,
-  // resolve the closest monument within a comfortable hit area.
+  // Desktop fallback: clicking within a comfortable hit area around a dot
+  // opens that monument even when the tiny SVG circle itself was missed.
   map.on('click', event => {
     const target = event?.originalEvent?.target
     if (target && target.closest?.('.leaflet-interactive')) return
