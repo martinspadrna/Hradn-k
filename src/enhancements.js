@@ -1,3 +1,4 @@
+import './mobile.css'
 import { createClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = 'https://cgshssdjgzzuprlwnabl.supabase.co'
@@ -66,7 +67,7 @@ async function searchCommons(title) {
         if (!response.ok) continue
         const json = await response.json()
         const pages = Object.values(json?.query?.pages || {})
-        for (const page) {
+        for (const page of pages) {
           const info = page?.imageinfo?.[0]
           const imageUrl = info?.thumburl || info?.url
           if (!imageUrl || !/^https?:\/\//i.test(imageUrl)) continue
@@ -80,7 +81,6 @@ async function searchCommons(title) {
             photo_source_url: info.descriptionurl || `https://commons.wikimedia.org/?curid=${page.pageid}`,
             source: 'commons',
           }
-          // Prefer results whose title is close to the requested place name.
           const pageTitle = String(page.title || '').toLocaleLowerCase('cs-CZ')
           if (pageTitle.includes(key.split(' ')[0])) {
             photoCache.set(key, result)
@@ -91,7 +91,7 @@ async function searchCommons(title) {
         const found = photoCache.get(key)
         if (found) return found
       } catch {
-        // Try the next query instead of breaking the detail view.
+        // Continue to the next search phrase.
       }
     }
     photoCache.set(key, null)
@@ -122,9 +122,11 @@ function renderPhoto(sheet, title, hit) {
   if (hit.photo_credit || hit.photo_license || hit.photo_source_url) {
     const p = document.createElement('div')
     p.className = 'photoCredit'
-    const parts = []
-    if (hit.photo_credit) parts.push(`Foto: ${hit.photo_credit}`)
-    if (hit.photo_license) parts.push(hit.photo_license)
+    if (hit.photo_credit) p.append(`Foto: ${hit.photo_credit}`)
+    if (hit.photo_license) {
+      if (p.textContent) p.append(` · ${hit.photo_license}`)
+      else p.append(hit.photo_license)
+    }
     if (hit.photo_source_url) {
       const a = document.createElement('a')
       a.href = hit.photo_source_url
@@ -134,8 +136,6 @@ function renderPhoto(sheet, title, hit) {
       p.append(' · ')
       p.appendChild(a)
     }
-    const label = parts[0] || ''
-    if (label) p.insertBefore(document.createTextNode(label), p.firstChild)
     img.after(p)
   }
 }
