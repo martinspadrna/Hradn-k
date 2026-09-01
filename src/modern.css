@@ -22,6 +22,7 @@ header{background:linear-gradient(145deg,#7057f5 0%,#8d6cff 55%,#a47cff 100%);pa
 .auth{background:radial-gradient(circle at 30% 0,rgba(112,87,245,.14),transparent 35%),var(--bg)}.authCard{border-color:#e2e5ee;box-shadow:0 28px 80px rgba(25,31,45,.12)}
 .nearbyPanel{background:linear-gradient(145deg,#fff,#faf9ff);box-shadow:var(--shadow)}.nearbyButton{box-shadow:0 8px 20px rgba(112,87,245,.2)}
 .hradnik-admin-backdrop{background:rgba(13,17,26,.58)!important;backdrop-filter:blur(5px)}.hradnik-admin-panel{box-shadow:0 30px 120px rgba(13,17,26,.28)!important}.hradnik-admin-card{box-shadow:0 7px 24px rgba(23,30,45,.05)!important}
+.infoSummaryCard{background:linear-gradient(145deg,#fff,#faf9ff);border-color:#dfd7ff}.infoSummaryCard h3{margin-top:0;margin-bottom:8px}.infoSummaryCard p{margin:0;line-height:1.65}.infoMeta{display:block;margin-top:10px;color:var(--muted);font-size:11px}.infoMeta a{color:#654ed0;font-weight:800;text-decoration:none}
 @media(max-width:850px){
  header{padding:13px 0 15px;border-radius:0 0 20px 20px}.logo{font-size:24px}.sub{font-size:11px}.nav{margin:10px 0 13px}.nav button{border-radius:14px;background:#eef0f5;padding:8px 8px;min-height:46px}.nav button.active{box-shadow:0 6px 15px rgba(112,87,245,.22)}
  .hero{padding:20px;border-radius:21px}.hero h1{font-size:30px}.sectionTitle h1{font-size:27px}.card{border-radius:17px}.place{border-radius:16px}
