@@ -1,0 +1,57 @@
+/* Hradník — mobile-first polish */
+:root{--touch:44px}
+.nav{scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.detailPhoto{width:100%;height:230px;object-fit:cover;border-radius:20px;display:block;background:#ececf2}
+.photoCredit{font-size:11px;color:var(--muted);margin:-5px 2px 12px;line-height:1.4}
+.photoCredit a{color:inherit}
+.placePhotoState{display:none}
+@media(max-width:850px){
+  body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+  header{border-radius:0 0 22px 22px;padding:14px 0 16px}
+  .wrap{width:calc(100% - 20px)}
+  .top{gap:10px;align-items:center}
+  .logo{font-size:24px}
+  .sub{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:54vw}
+  .account b{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .account button{min-height:40px;padding:7px 10px}
+  main{padding:10px 10px 0}
+  .nav{position:fixed;z-index:90;left:0;right:0;bottom:0;margin:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);box-shadow:0 -8px 24px #14192712;gap:6px;justify-content:space-between}
+  .nav button{min-height:48px;flex:1;padding:7px 5px;border-radius:13px;font-size:12px;line-height:1.15;white-space:normal}
+  .hero{grid-template-columns:1fr;padding:18px;border-radius:19px;gap:13px;margin-bottom:14px}
+  .hero h1,.section h1{font-size:28px}
+  .stats{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stats>div{padding:12px}
+  .stats b{font-size:23px}
+  .sectionTitle{align-items:center}
+  .chips{padding-bottom:8px;gap:6px}
+  .chips button{min-height:42px}
+  .search{min-height:46px}
+  .filterLine{gap:8px;align-items:center}
+  .filterLine select,.mapFilters select{min-height:44px;flex:1}
+  .place{padding:4px 5px 4px 7px;border-radius:15px}
+  .placeMain{min-height:58px;gap:9px;padding:7px}
+  .placeIcon{font-size:27px}
+  .placeCopy b{font-size:14px}
+  .placeCopy small{font-size:12px}
+  .quick button{width:42px;height:42px;padding:0}
+  .mapFilters{grid-template-columns:1fr!important;gap:8px}
+  .mapFilters>div:first-child{grid-column:auto}
+  .mapChips{flex-wrap:nowrap;overflow:auto}
+  #map{height:calc(100dvh - 300px);min-height:430px;border-radius:16px}
+  .mapLegend{gap:8px;font-size:11px}
+  .detailGrid{grid-template-columns:1fr}
+  .overlay{align-items:flex-end}
+  .sheet{width:100%;max-height:96dvh;border-radius:24px 24px 0 0;padding:14px 14px calc(20px + env(safe-area-inset-bottom))}
+  .bigIcon{height:150px;font-size:70px}
+  .detailPhoto{height:220px}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .actions>*{min-height:46px}
+  .actions .btn{min-height:46px}
+  .auth{min-height:100dvh;padding:14px}
+  .authCard{padding:26px 20px 22px;border-radius:20px}
+}
+@media(min-width:851px){
+  .placeMain{padding-left:12px}
+  .detailPhoto{height:330px}
+}
