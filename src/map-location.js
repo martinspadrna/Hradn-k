@@ -19,7 +19,8 @@ function setupCurrentLocation(map) {
       const center = [lat, lon]
       map._hradnikLocation = center
 
-      // Keep the 25 km radius only as a zoom target; do not draw the radius itself.
+      // Show only the current-position point. The 25 km radius is used
+      // exclusively to choose the initial zoom; no visible circle is drawn.
       map._hradnikLocationMarker?.remove()
       map._hradnikLocationMarker = L.circleMarker(center, {
         radius: 8,
@@ -36,6 +37,7 @@ function setupCurrentLocation(map) {
       const lonDelta = RADIUS_METERS / (111320 * cos)
       const southWest = [lat - latDelta, lon - lonDelta]
       const northEast = [lat + latDelta, lon + lonDelta]
+
       map.fitBounds(L.latLngBounds(southWest, northEast), {
         padding: [18, 18],
         maxZoom: 11,
@@ -43,16 +45,16 @@ function setupCurrentLocation(map) {
       })
     },
     () => {
-      // User denied location or the device could not determine it.
-      // Keep the existing Czech Republic fallback view.
+      // Permission denied / location unavailable: keep the existing fallback view.
     },
     LOCATION_OPTIONS,
   )
 }
 
-const originalFitBounds = L.Map.prototype.fitBounds
-L.Map.prototype.fitBounds = function (...args) {
-  const result = originalFitBounds.apply(this, args)
+// Start location lookup when the map is created instead of monkey-patching
+// fitBounds. This prevents the location callback from interfering with later
+// map moves, hover state and marker interactions.
+L.Map.addInitHook(function () {
+  if (this._container?.id !== 'map') return
   setupCurrentLocation(this)
-  return result
-}
+})
