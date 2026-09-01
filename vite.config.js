@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.svg', 'pwa-192.svg', 'pwa-512.svg'],
       manifest: {
         name: 'Hradník',
         short_name: 'Hradník',
@@ -15,13 +15,13 @@ export default defineConfig({
         display: 'standalone',
         lang: 'cs',
         icons: [
-          { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/pwa-512.png', sizes: '512x512', type: 'image/png' }
+          { src: '/pwa-192.svg', sizes: '192x192', type: 'image/svg+xml' },
+          { src: '/pwa-512.svg', sizes: '512x512', type: 'image/svg+xml' }
         ]
       },
       workbox: {
         navigateFallback: '/index.html',
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,webp}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,webp}']
       }
     })
   ]
