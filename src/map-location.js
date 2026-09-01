@@ -17,33 +17,30 @@ function setupCurrentLocation(map) {
       const lat = position.coords.latitude
       const lon = position.coords.longitude
       const center = [lat, lon]
-
       map._hradnikLocation = center
 
-      map._hradnikLocationCircle?.remove()
+      // Keep the 25 km radius only as a zoom target; do not draw the radius itself.
       map._hradnikLocationMarker?.remove()
-
-      map._hradnikLocationCircle = L.circle(center, {
-        radius: RADIUS_METERS,
-        color: '#7657ff',
-        weight: 2,
-        opacity: 0.65,
-        fillColor: '#7657ff',
-        fillOpacity: 0.08,
-        interactive: false,
-      }).addTo(map)
-
       map._hradnikLocationMarker = L.circleMarker(center, {
         radius: 8,
         color: '#ffffff',
         weight: 3,
-        fillColor: '#7657ff',
+        fillColor: '#7057f5',
         fillOpacity: 1,
         interactive: false,
+        pane: 'markerPane',
       }).addTo(map)
 
-      const bounds = map._hradnikLocationCircle.getBounds()
-      map.fitBounds(bounds, { padding: [18, 18], maxZoom: 11, animate: false })
+      const latDelta = RADIUS_METERS / 111320
+      const cos = Math.max(0.2, Math.cos(lat * Math.PI / 180))
+      const lonDelta = RADIUS_METERS / (111320 * cos)
+      const southWest = [lat - latDelta, lon - lonDelta]
+      const northEast = [lat + latDelta, lon + lonDelta]
+      map.fitBounds(L.latLngBounds(southWest, northEast), {
+        padding: [18, 18],
+        maxZoom: 11,
+        animate: false,
+      })
     },
     () => {
       // User denied location or the device could not determine it.
