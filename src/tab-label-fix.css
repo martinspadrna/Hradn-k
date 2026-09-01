@@ -1,0 +1,5 @@
+/* The navigation already shows the active section name. Keep the page content focused on its actual title. */
+#content > section > .eyebrow,
+#content > section > .sectionTitle .eyebrow {
+  display: none !important;
+}
