@@ -1,0 +1,22 @@
+/* Hradník — 1:1 visual polish for the supplied desktop reference */
+@media (min-width:851px){
+  .redesign-sidebar{width:160px!important}
+  header{left:160px!important;height:60px!important}
+  main.wrap{margin:70px 10px 30px 174px!important}
+  header .top{margin-left:14px!important;margin-right:10px!important}
+  .globalSearchWrap,.globalSearch{flex-basis:362px!important;width:362px!important}
+  .globalSearch{height:42px!important;border-radius:7px!important;font-size:13px!important}
+  .nearbyPanel{min-height:100px!important;padding:12px 16px!important;border-radius:17px!important}
+  .nearbyRow{min-height:74px!important}
+  .nearbyRow h2{font-size:21px!important}
+  .nearbyButton{height:42px!important;min-height:42px!important;padding:0 14px!important}
+  .sectionTitle{min-height:42px!important;margin-bottom:7px!important}
+  .sectionTitle h2{font-size:20px!important}
+  .sectionTitle .linkish{height:38px!important;color:#161a1c!important;background:#edf0f2!important;border-color:#d5dadd!important}
+  #homeList{width:368px!important}
+  #homeList .empty{height:91px!important;border-radius:14px!important}
+}
+
+@media (max-width:850px){
+  .sectionTitle .linkish{color:#161a1c!important;background:#edf0f2!important}
+}
