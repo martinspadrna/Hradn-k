@@ -1,74 +1,10 @@
-/* Final mobile reference layer. Loaded last so legacy styles cannot override it. */
-@media (max-width:850px){
-  html,body,#app{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important}
-  html{overflow-x:hidden!important}
-  body{padding-bottom:calc(76px + env(safe-area-inset-bottom))!important;overflow-x:hidden!important;touch-action:pan-y!important}
-  #app{overflow-x:clip!important}
-
-  #app .redesign-sidebar{
-    position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;
-    width:100%!important;height:calc(72px + env(safe-area-inset-bottom))!important;min-height:72px!important;
-    display:block!important;box-sizing:border-box!important;padding:4px 6px env(safe-area-inset-bottom)!important;margin:0!important;
-    border:0!important;border-top:1px solid #2a3439!important;border-radius:0!important;
-    background:rgba(7,10,12,.98)!important;box-shadow:0 -12px 30px rgba(0,0,0,.42)!important;
-    backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;
-  }
-  #app .redesign-sidebar .redesign-brand,#app .redesign-sidebar .redesign-side-footer{display:none!important}
-  #app .redesign-sidebar #nav,#app .redesign-sidebar .redesign-nav{
-    display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;width:100%!important;height:68px!important;
-    min-height:0!important;margin:0!important;padding:0!important;gap:2px!important;overflow:visible!important;background:transparent!important;
-  }
-  #app .redesign-sidebar #nav button,#app .redesign-sidebar .redesign-nav button{
-    appearance:none!important;-webkit-appearance:none!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:none!important;
-    height:64px!important;min-height:64px!important;margin:0!important;padding:5px 1px!important;border:1px solid transparent!important;border-radius:11px!important;
-    background:transparent!important;color:#7f898e!important;box-shadow:none!important;transform:none!important;filter:none!important;
-    display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;
-    white-space:nowrap!important;overflow:hidden!important;font-size:9px!important;line-height:1.05!important;font-weight:800!important;text-align:center!important;
-  }
-  #app .redesign-sidebar #nav button:hover,#app .redesign-sidebar .redesign-nav button:hover{background:#10171b!important;color:#aeb6b9!important}
-  #app .redesign-sidebar #nav button.active,#app .redesign-sidebar .redesign-nav button.active{
-    background:#302718!important;border-color:#5a481d!important;color:#f4c84a!important;box-shadow:inset 0 1px 0 rgba(244,200,74,.55)!important;
-  }
-  #app .redesign-sidebar #nav button img[data-redesign-icon],#app .redesign-sidebar .redesign-nav button img[data-redesign-icon]{
-    display:block!important;width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;margin:0!important;padding:0!important;
-    flex:0 0 22px!important;object-fit:contain!important;opacity:.72!important;filter:grayscale(1) brightness(1.65)!important;
-  }
-  #app .redesign-sidebar #nav button.active img[data-redesign-icon],#app .redesign-sidebar .redesign-nav button.active img[data-redesign-icon]{opacity:1!important;filter:none!important}
-  #app .redesign-sidebar #nav button::before,#app .redesign-sidebar #nav button::after,#app .redesign-sidebar .redesign-nav button::before,#app .redesign-sidebar .redesign-nav button::after{content:none!important}
-
-  header{padding-top:0!important;padding-bottom:0!important;height:60px!important;border-radius:0!important;width:100%!important}
-  header .top{height:60px!important;min-height:60px!important;margin:0 12px!important;width:auto!important;max-width:none!important}
-  main.wrap{width:calc(100vw - 20px)!important;max-width:none!important;min-width:0!important;margin:70px 10px calc(84px + env(safe-area-inset-bottom))!important;padding:0!important}
-  #content,#content>section{width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important}
-
-  /* The map must fill the actual phone viewport. Leaflet can otherwise keep the width it had at creation time. */
-  #content>section:has(>#map){width:100%!important;min-width:0!important;max-width:none!important;overflow:visible!important}
-  .map-layout{display:block!important;width:100%!important;min-width:0!important;max-width:none!important;margin-top:8px!important;overflow:visible!important}
-  .map-layout #map,#content #map{
-    display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
-    height:calc(100dvh - 330px)!important;min-height:430px!important;
-    margin:0!important;box-sizing:border-box!important;border-radius:12px!important;overflow:hidden!important;
-    touch-action:pan-x pan-y pinch-zoom!important;
-  }
-  .map-focus-card{width:100%!important;max-width:none!important;box-sizing:border-box!important}
-
-  /* Keep the legend dark and compact on a narrow phone. */
-  .mapLegend{display:flex!important;width:100%!important;box-sizing:border-box!important;max-width:none!important;
-    padding:8px 10px!important;margin:6px 0 10px!important;gap:6px 10px!important;
-    background:#0d1418!important;color:#9da6aa!important;border:1px solid #2b353a!important;border-radius:9px!important;
-    font-size:9px!important;line-height:1.2!important;overflow:hidden!important}
-  .mapLegend span{white-space:nowrap!important}
-  .mapFilters{width:100%!important;max-width:none!important;box-sizing:border-box!important}
-
-  /* Remove the last legacy emoji decoration from the mobile home without changing the actual heading text. */
-  #content .sectionTitle h2{font-size:28px!important;letter-spacing:-.035em!important}
-  #content #allMine{background:#11181c!important;color:#dce1e3!important;border:1px solid #303a40!important;border-radius:10px!important;min-height:44px!important;padding:0 15px!important;font-weight:800!important}
-}
-@media(max-width:520px){
-  #app .redesign-sidebar{height:calc(70px + env(safe-area-inset-bottom))!important}
-  #app .redesign-sidebar #nav,#app .redesign-sidebar .redesign-nav{height:66px!important}
-  #app .redesign-sidebar #nav button,#app .redesign-sidebar .redesign-nav button{height:62px!important;min-height:62px!important;border-radius:10px!important;font-size:8.5px!important}
-  #app .redesign-sidebar #nav button img[data-redesign-icon],#app .redesign-sidebar .redesign-nav button img[data-redesign-icon]{width:21px!important;height:21px!important;min-width:21px!important;min-height:21px!important;flex-basis:21px!important}
-  main.wrap{width:calc(100vw - 14px)!important;margin-left:7px!important;margin-right:7px!important}
-  .map-layout #map,#content #map{height:calc(100dvh - 315px)!important;min-height:420px!important}
+/* Final mobile reference layer — match supplied phone mockup without legacy overrides. */
+@media(max-width:850px){
+html,body,#app{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important}html{overflow-x:hidden!important}body{padding-bottom:calc(76px + env(safe-area-inset-bottom))!important;overflow-x:hidden!important;touch-action:pan-y!important}#app{overflow-x:clip!important}
+header{position:fixed!important;z-index:1200!important;left:0!important;right:0!important;top:0!important;width:100%!important;height:60px!important;padding:0!important;border-radius:0!important;background:#080c0e!important;border-bottom:1px solid #222c31!important;box-shadow:0 6px 20px rgba(0,0,0,.24)!important}header .top{height:60px!important;min-height:60px!important;margin:0 12px!important;width:auto!important;max-width:none!important;display:flex!important;align-items:center!important;justify-content:center!important;position:relative!important}header .top>div:first-child{min-width:0!important;display:flex!important;align-items:center!important;justify-content:center!important}header .logo{display:block!important;width:145px!important;height:48px!important;background:url('/hradnik-logo.svg') center/contain no-repeat!important;font-size:0!important;color:transparent!important}header .logo::before,header .logo::after{content:none!important}header .sub{display:none!important}.account{display:none!important}
+.mobileHeaderMenu,.mobileHeaderSearch{position:absolute!important;top:14px!important;width:32px!important;height:32px!important;margin:0!important;padding:0!important;border:0!important;border-radius:8px!important;background:transparent!important;color:#f1f3f4!important;display:flex!important;align-items:center!important;justify-content:center!important;z-index:3!important}.mobileHeaderMenu{left:0!important;flex-direction:column!important;gap:4px!important}.mobileHeaderMenu span{display:block!important;width:20px!important;height:2px!important;border-radius:2px!important;background:#f1f3f4!important}.mobileHeaderSearch{right:0!important}.mobileHeaderSearch img{width:22px!important;height:22px!important;filter:grayscale(1) brightness(2)!important}
+main.wrap{width:calc(100vw - 14px)!important;max-width:none!important;min-width:0!important;margin:70px 7px calc(84px + env(safe-area-inset-bottom))!important;padding:0!important}#content,#content>section{width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important}
+#app .redesign-sidebar{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;height:calc(70px + env(safe-area-inset-bottom))!important;min-height:70px!important;display:block!important;box-sizing:border-box!important;padding:2px 4px env(safe-area-inset-bottom)!important;margin:0!important;border:0!important;border-top:1px solid #293238!important;border-radius:0!important;background:rgba(8,12,14,.98)!important;box-shadow:0 -10px 28px rgba(0,0,0,.36)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important}#app .redesign-sidebar .redesign-brand,#app .redesign-sidebar .redesign-side-footer{display:none!important}.redesign-sidebar #nav,.redesign-sidebar .redesign-nav{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;width:100%!important;height:66px!important;min-height:0!important;margin:0!important;padding:0!important;gap:2px!important;background:transparent!important}.redesign-nav button{appearance:none!important;-webkit-appearance:none!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;height:64px!important;min-height:64px!important;margin:0!important;padding:5px 1px!important;border:1px solid transparent!important;border-radius:10px!important;background:transparent!important;color:#7f898e!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;white-space:nowrap!important;overflow:hidden!important;font-size:8.5px!important;line-height:1.05!important;font-weight:800!important;text-align:center!important}.redesign-nav button.active{background:#302718!important;border-color:#5a481d!important;color:#f4c84a!important;box-shadow:inset 0 1px 0 rgba(244,200,74,.55)!important}.redesign-nav button::before,.redesign-nav button::after{content:none!important}.redesign-nav button img[data-redesign-icon]{display:block!important;width:21px!important;height:21px!important;min-width:21px!important;min-height:21px!important;flex:0 0 21px!important;margin:0!important;padding:0!important;object-fit:contain!important;opacity:.72!important;filter:grayscale(1) brightness(1.65)!important}.redesign-nav button.active img[data-redesign-icon]{opacity:1!important;filter:none!important}.redesign-nav button span[data-redesign-label]{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:clip!important}
+#content .sectionTitle h2{font-size:28px!important;letter-spacing:-.035em!important}#content #allMine{background:#11181c!important;color:#dce1e3!important;border:1px solid #303a40!important;border-radius:10px!important;min-height:44px!important;padding:0 15px!important;font-weight:800!important}
+#content>section:has(>#map){width:100%!important;min-width:0!important;max-width:none!important;overflow:visible!important}.map-layout{display:block!important;width:100%!important;min-width:0!important;max-width:none!important;margin-top:8px!important;overflow:visible!important}.map-layout #map,#content #map{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;height:calc(100dvh - 315px)!important;min-height:420px!important;margin:0!important;box-sizing:border-box!important;border-radius:12px!important;overflow:hidden!important;touch-action:pan-x pan-y pinch-zoom!important}.map-focus-card{width:100%!important;max-width:none!important;box-sizing:border-box!important}.mapLegend{display:flex!important;width:100%!important;box-sizing:border-box!important;max-width:none!important;padding:8px 10px!important;margin:6px 0 10px!important;gap:6px 10px!important;background:#0d1418!important;color:#9da6aa!important;border:1px solid #2b353a!important;border-radius:9px!important;font-size:9px!important;line-height:1.2!important;overflow:hidden!important}.mapLegend span{white-space:nowrap!important}.mapFilters{width:100%!important;max-width:none!important;box-sizing:border-box!important}
 }
