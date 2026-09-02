@@ -1,6 +1,6 @@
-const NAV_LABELS=['Domů','Katalog','Mapa','Moje','Deník','Statistiky']
-const NAV_ICONS=['home','list','map','favorites','diary','stats']
-const iconForKind=kind=>{const k=String(kind||'').toLocaleLowerCase('cs-CZ');if(k.includes('zřícen'))return'/icons/home.svg';if(k.includes('zámek'))return'/icons/home.svg';if(k.includes('tvrz'))return'/icons/list.svg';if(k.includes('klášter'))return'/icons/diary.svg';if(k.includes('opev'))return'/icons/home.svg';return'/icons/home.svg'}
+const NAV_LABELS=['Mapa','Seznam','Oblíbené','Vyhledávání','Kategorie','O aplikaci']
+const NAV_ICONS=['map','list','favorites','search','grid','info']
+const iconForKind=kind=>{const k=String(kind||'').toLocaleLowerCase('cs-CZ');if(k.includes('klášter'))return'/icons/diary.svg';if(k.includes('tvrz'))return'/icons/list.svg';return'/icons/home.svg'}
 
 let observer=null
 let applying=false
@@ -38,22 +38,14 @@ function buildSidebar(app,nav){
 
 function beautifyPlaces(){document.querySelectorAll('.placeIcon').forEach(node=>{if(node.dataset.redesigned==='1')return;const kind=node.parentElement?.querySelector('.placeCopy small')?.textContent?.split('·')[0]?.trim()||'';node.textContent='';const img=document.createElement('img');img.src=iconForKind(kind);img.alt='';node.appendChild(img);node.dataset.redesigned='1'})}
 
-function ensureNearbyPanel(){
- const content=document.querySelector('#content');if(!content)return
- if(!document.querySelector('.hero'))return
- if(content.querySelector('.nearbyPanel'))return
- const hero=content.querySelector('.hero');if(!hero)return
- const panel=document.createElement('section');panel.className='nearbyPanel';panel.innerHTML='<div class="nearbyRow"><div><p class="eyebrow">HRADNÍK</p><h2>Co máme poblíž?</h2><p class="muted">Najdi hrady, zámky a zříceniny, které stojí za další výpravu.</p></div><button class="nearbyButton">Otevřít mapu</button></div>'
- panel.querySelector('.nearbyButton').onclick=()=>{const mapBtn=document.querySelector('.redesign-sidebar .nav button:nth-child(3)');if(mapBtn)mapBtn.click()}
- hero.replaceWith(panel)
-}
+function ensureNearbyPanel(){return}
 
 function enhanceMap(){
  const map=document.querySelector('#map');if(!map)return
  if(map.parentElement?.classList.contains('map-layout'))return
  const parent=map.parentElement;if(!parent)return
  const layout=document.createElement('div');layout.className='map-layout';parent.insertBefore(layout,map);layout.appendChild(map)
- const panel=document.createElement('aside');panel.className='map-focus-card';panel.innerHTML='<div class="map-focus-brand"><img src="/hradnik-app-icon.svg" alt=""><b>VYBRANÁ PAMÁTKA</b></div><div class="focus-placeholder"><strong>Klikni na památku v mapě</strong><br><span>Otevře se její detail s informacemi, stavem návštěvy a možností navigace.</span></div>'
+ const panel=document.createElement('aside');panel.className='map-focus-card';panel.innerHTML='<div class="focus-placeholder"><strong>Klikni na památku v mapě</strong><br><span>Otevře se její detail přímo vedle mapy s fotografií, informacemi, stavem návštěvy a navigací.</span></div>'
  layout.appendChild(panel)
  requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')))
 }
@@ -62,7 +54,7 @@ function polishPage(){
  const main=document.querySelector('main.wrap');if(!main)return
  main.classList.add('redesign-main')
  const title=document.querySelector('#content h1');if(title)title.classList.add('redesign-title')
- beautifyPlaces();ensureNearbyPanel();if(document.querySelector('#map'))enhanceMap()
+ beautifyPlaces();enhanceMap()
 }
 
 function apply(){
@@ -78,12 +70,7 @@ function apply(){
  }finally{applying=false;const app=document.querySelector('#app');if(app)observer?.observe(app,{childList:true,subtree:true})}
 }
 
-function scheduleApply(){
- if(applyQueued)return
- applyQueued=true
- queueMicrotask(()=>{applyQueued=false;apply()})
-}
-
+function scheduleApply(){if(applyQueued)return;applyQueued=true;queueMicrotask(()=>{applyQueued=false;apply()})}
 observer=new MutationObserver(scheduleApply)
 const start=()=>{const app=document.querySelector('#app');if(!app)return;observer.observe(app,{childList:true,subtree:true});apply()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start()
