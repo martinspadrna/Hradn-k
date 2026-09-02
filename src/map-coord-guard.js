@@ -12,6 +12,7 @@ const validLatLng = (latlng) => {
   if (Array.isArray(latlng)) {
     const lat = Number(latlng[0])
     const lng = Number(latlng[1])
+    if (lat === 0 && lng === 0) return false
     return hasValidCoord(lat) && hasValidCoord(lng) && lng >= -180 && lng <= 180
   }
   if (!latlng || typeof latlng !== 'object') return false
