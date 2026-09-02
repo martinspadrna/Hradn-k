@@ -1,3 +1,4 @@
+const NAV_LABELS=['Domů','Katalog','Mapa','Moje','Deník','Statistiky']
 const NAV_ICONS=['nav-map','nav-list','nav-heart','nav-search','nav-grid','nav-info']
 const iconForKind=kind=>{const k=String(kind||'').toLocaleLowerCase('cs-CZ');if(k.includes('zřícen'))return'/icons/home.svg';if(k.includes('zámek'))return'/icons/home.svg';if(k.includes('tvrz'))return'/icons/list.svg';if(k.includes('klášter'))return'/icons/diary.svg';if(k.includes('opev'))return'/icons/home.svg';return'/icons/home.svg'}
 
@@ -8,7 +9,7 @@ function addGlobalSearch(header){
 
 function buildSidebar(app,header,nav){
  let side=app.querySelector('.redesign-sidebar');if(!side){side=document.createElement('aside');side.className='redesign-sidebar';const brand=document.createElement('div');brand.className='redesign-brand';brand.innerHTML='<img src="/hradnik-app-icon.svg" alt=""><div><b>HRADNÍK</b><span>Hrady · zámky · zříceniny<br>· tvrze · kláštery</span></div>';const foot=document.createElement('div');foot.className='redesign-side-footer';foot.innerHTML='<b>Hradník</b>Objevuj.<br>Poznávej.<br>Chraň.';side.append(brand,foot);app.insertBefore(side,app.firstChild)}
- if(nav.parentElement!==side)side.insertBefore(nav,side.querySelector('.redesign-side-footer'));nav.classList.add('redesign-nav');nav.querySelectorAll('button').forEach((b,i)=>{let img=b.querySelector('img');if(!img){img=document.createElement('img');img.src=`/icons/${NAV_ICONS[i]||'nav-map'}.svg`;img.alt='';img.setAttribute('aria-hidden','true');b.prepend(img)}else img.src=`/icons/${NAV_ICONS[i]||'nav-map'}.svg`})
+ if(nav.parentElement!==side)side.insertBefore(nav,side.querySelector('.redesign-side-footer'));nav.classList.add('redesign-nav');nav.querySelectorAll('button').forEach((b,i)=>{b.textContent=NAV_LABELS[i]||b.textContent.trim();const img=document.createElement('img');img.src=`/icons/${NAV_ICONS[i]||'nav-map'}.svg`;img.alt='';img.setAttribute('aria-hidden','true');b.prepend(img)})
 }
 
 function beautifyPlaces(){document.querySelectorAll('.placeIcon').forEach(node=>{if(node.dataset.redesigned==='1')return;const kind=node.parentElement?.querySelector('.placeCopy small')?.textContent?.split('·')[0]?.trim()||'';node.textContent='';const img=document.createElement('img');img.src=iconForKind(kind);img.alt='';node.appendChild(img);node.dataset.redesigned='1'})}
