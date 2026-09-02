@@ -1,0 +1,11 @@
+{
+  "name":"Hradník",
+  "short_name":"Hradník",
+  "description":"Katalog a deník hradů, zámků, zřícenin a tvrzí.",
+  "lang":"cs",
+  "start_url":"/",
+  "display":"standalone",
+  "background_color":"#070a0c",
+  "theme_color":"#070a0c",
+  "icons":[{"src":"/hradnik-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
