@@ -54,7 +54,7 @@ async function captureAllTabs(page, testInfo, suffix) {
     await nav.nth(i).click()
     await page.waitForTimeout(i === 0 ? 900 : 350)
     await expect(page.locator('#app')).toBeVisible()
-    await page.screenshot({ path: testInfo.outputPath(`${suffix}-${String(i + 1).padStart(2, '0')}-${tabs[i].toLowerCase().replace(/[^a-z0-9]+/g, '-')}.png`), fullPage: true })
+    await page.screenshot({ path: testInfo.outputPath(`${suffix}-${String(i + 1).padStart(2, '0')}-${tabs[i].toLowerCase().replace(/[^a-z0-9]+/g, '-')}.png`), fullPage: false })
   }
 }
 
@@ -77,7 +77,7 @@ test.describe('Hradník auth and interaction smoke tests', () => {
     await expect(page.locator('.auth')).toBeVisible()
     expect(await page.locator('.auth button').count()).toBeGreaterThan(0)
     expect(await page.locator('.auth button:visible').count()).toBeGreaterThan(0)
-    await page.screenshot({ path: testInfo.outputPath('hradnik-auth-logged-out.png'), fullPage: true })
+    await page.screenshot({ path: testInfo.outputPath('hradnik-auth-logged-out.png'), fullPage: false })
     expect(errors).toEqual([])
   })
 
@@ -87,26 +87,32 @@ test.describe('Hradník auth and interaction smoke tests', () => {
     await page.goto('/')
     const nav = page.locator('.redesign-nav button')
     await expect(nav).toHaveCount(6)
-    for (let i = 0; i < 6; i++) {
-      await nav.nth(i).click()
-      await expect(page.locator('#app')).toBeVisible()
-    }
+
+    await nav.nth(0).click()
+    await expect(page.locator('#content h1')).toHaveText('Mapa památek')
+    await expect(page.locator('#map')).toBeVisible()
+    await page.locator('#mapPreservation').selectOption('all')
+    await page.locator('#mapState').selectOption('none')
+
     await nav.nth(1).click()
     await expect(page.locator('#content h1')).toHaveText('Historická místa')
     await page.locator('#search').fill('hrad')
     await expect(page.locator('#list')).toBeVisible()
     await page.locator('#preservation').selectOption('all')
-    await expect(page.locator('#list')).toBeVisible()
+
     await nav.nth(2).click()
+    await expect(page.locator('#content h1')).toHaveText('Naše místa')
+    await expect(page.locator('#mw')).toBeVisible()
     await page.locator('#mw').click()
     await page.locator('#mv').click()
     await page.locator('#mf').click()
     await expect(page.locator('#mineList')).toBeVisible()
-    await nav.nth(0).click()
-    await expect(page.locator('#map')).toBeVisible()
-    await page.locator('#mapPreservation').selectOption('all')
-    await page.locator('#mapState').selectOption('none')
-    await expect(page.locator('#map')).toBeVisible()
+
+    await nav.nth(4).click()
+    await expect(page.locator('#content h1')).toHaveText('Naše návštěvy')
+    await nav.nth(5).click()
+    await expect(page.locator('#content h1')).toHaveText('Naše sbírka')
+
     expect(errors).toEqual([])
   })
 })
