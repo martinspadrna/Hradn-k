@@ -1,194 +1,26 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.112.4'
 
-const db = createClient(
-  Deno.env.get('SUPABASE_URL')!,
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-  { auth: { persistSession: false } },
-)
+const db=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false}})
+const PAGES=['https://www.hrady-zriceniny.cz/hrady_seznam_komplet.htm','https://www.hrady-zriceniny.cz/hrady_seznam_komplet2.htm','https://www.hrady-zriceniny.cz/hrady_seznam_komplet3.htm','https://www.hrady-zriceniny.cz/hrady_seznam_komplet4.htm']
+const MASTER_URL=/hrady_seznam_komplet/i
 
-const PAGES = [
-  'https://www.hrady-zriceniny.cz/hrady_seznam_komplet.htm',
-  'https://www.hrady-zriceniny.cz/hrady_seznam_komplet2.htm',
-  'https://www.hrady-zriceniny.cz/hrady_seznam_komplet3.htm',
-  'https://www.hrady-zriceniny.cz/hrady_seznam_komplet4.htm',
-]
-const MASTER_URL = /hrady_seznam_komplet/i
-
-function clean(v: unknown) {
-  return String(v ?? '')
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-function norm(v = '') {
-  return clean(v)
-    .toLocaleLowerCase('cs-CZ')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[–—−]/g, '-')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-function hrefFrom(raw = '') {
-  return raw.match(/href\s*=\s*["']([^"']+)["']/i)?.[1] || ''
-}
-
-function abs(base: string, href: string) {
-  try {
-    const u = new URL(href, base)
-    if (u.hostname === 'hrady-zriceniny.cz') u.hostname = 'www.hrady-zriceniny.cz'
-    if (u.protocol === 'http:') u.protocol = 'https:'
-    return u.href
-  } catch {
-    return ''
-  }
-}
-
-function isObjectUrl(url = '') {
-  return /hrady-zriceniny\.cz\/(?:hrad|zamek|tvrz|objekt|tisk)_/i.test(url) && !MASTER_URL.test(url)
-}
-
-function parseList(html: string, pageUrl: string) {
-  const out: any[] = []
-  for (const m of html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)) {
-    const cells: string[] = []
-    const raw: string[] = []
-    for (const c of m[1].matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)) {
-      raw.push(c[1])
-      cells.push(clean(c[1]))
-    }
-    if (cells.length < 3) continue
-    const n = Number((cells[0] || '').replace(/[^0-9]/g, ''))
-    if (!Number.isFinite(n) || n < 1 || n > 5000) continue
-    const idx = cells.findIndex((x, i) => i > 0 && x.length >= 2 && x.length <= 180)
-    if (idx < 1) continue
-    const name = cells[idx]
-    const character = cells[idx + 1] || ''
-    const district = cells[idx + 2] || ''
-    const region = cells[idx + 3] || ''
-    if (!/(hrad|zámek|zřícen|tvrz|klášter|komenda|opevně|bašta|věž|palác)/i.test(character)) continue
-    const objectHref = raw.map(hrefFrom).map(h => abs(pageUrl, h)).find(isObjectUrl) || ''
-    out.push({ name, character, district, region, url: objectHref })
-  }
-  return out
-}
-
-async function get(url: string, ms = 30000) {
-  const c = new AbortController()
-  const timer = setTimeout(() => c.abort(), ms)
-  try {
-    const r = await fetch(url, { headers: { 'User-Agent': 'Hradnik/1.0 (+https://hradnik.vercel.app)' }, signal: c.signal })
-    if (!r.ok) return null
-    return await r.text()
-  } catch {
-    return null
-  } finally {
-    clearTimeout(timer)
-  }
-}
-
-function extractGps(html: string) {
-  const text = clean(html)
-  const m = text.match(/GPS:[\s\S]{0,700}?\|\s*(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/i)
-  if (!m) return null
-  const latitude = Number(m[1])
-  const longitude = Number(m[2])
-  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null
-  if (latitude < 48 || latitude > 52 || longitude < 11 || longitude > 20) return null
-  return { latitude, longitude }
-}
-
-function heuristics(name: string, kind: string) {
-  const base = norm(name).replace(/\s+/g, '-')
-  const k = norm(kind)
-  const prefixes = k.includes('zřícen') ? ['zricenina', 'hrad', 'zamek', 'tvrz'] : k.includes('zám') ? ['zamek', 'hrad', 'tvrz'] : k.includes('tvrz') ? ['tvrz', 'hrad', 'zamek'] : ['hrad', 'zricenina', 'zamek', 'tvrz']
-  return prefixes.map(p => `https://www.hrady-zriceniny.cz/${p}_${base}.htm`)
-}
-
-async function sourceIndex() {
-  const all: any[] = []
-  const fetched = await Promise.all(PAGES.map(async page => ({ page, html: await get(page) })))
-  for (const x of fetched) if (x.html) all.push(...parseList(x.html, x.page))
-  const byKey = new Map<string, any[]>()
-  const byName = new Map<string, any[]>()
-  for (const x of all) {
-    if (!x.url) continue
-    const nameKey = norm(x.name)
-    const key = `${nameKey}|${norm(x.district)}`
-    if (!byKey.has(key)) byKey.set(key, [])
-    byKey.get(key)!.push(x)
-    if (!byName.has(nameKey)) byName.set(nameKey, [])
-    byName.get(nameKey)!.push(x)
-  }
-  return { byKey, byName, records: all.length }
-}
-
-async function findGps(p: any, index: Awaited<ReturnType<typeof sourceIndex>>) {
-  const candidates: string[] = []
-  const add = (url: string) => { if (url && !candidates.includes(url)) candidates.push(url) }
-  if (p.source_url && isObjectUrl(p.source_url)) add(p.source_url)
-  for (const x of index.byKey.get(`${norm(p.name)}|${norm(p.district)}`) || []) add(x.url)
-  const sameName = index.byName.get(norm(p.name)) || []
-  if (sameName.length === 1) add(sameName[0].url)
-  for (const u of heuristics(p.name, p.kind || '')) add(u)
-  for (const url of candidates.slice(0, 8)) {
-    const html = await get(url)
-    if (!html) continue
-    const gps = extractGps(html)
-    if (gps) return { ...gps, source_url: url, source: 'Hrady-zříceniny.cz', confidence: 0.99 }
-  }
-  return null
-}
-
-async function keyOk(req: Request) {
-  const { data } = await db.from('hradnik_sync_control').select('sync_key').eq('id', true).maybeSingle()
-  const key = data?.sync_key || Deno.env.get('HRADNIK_GEOCODE_KEY') || ''
-  if (!key) return true
-  return req.headers.get('x-hradnik-geocode-key') === key || req.headers.get('x-hradnik-sync-key') === key
-}
-
-Deno.serve(async req => {
-  if (req.method === 'OPTIONS') return new Response('', { status: 204 })
-  if (req.method !== 'POST') return Response.json({ ok: true, service: 'hradnik-geocode' })
-  if (!(await keyOk(req))) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  try {
-    const body = await req.json().catch(() => ({}))
-    const limit = Math.min(50, Math.max(1, Number(body.limit) || 25))
-    const index = await sourceIndex()
-    const { data: places, error } = await db.from('hradnik_places').select('id,name,kind,character,municipality,district,region,latitude,longitude,source_url').eq('is_visible', true).eq('is_current', true).or('latitude.is.null,longitude.is.null').order('id').limit(limit)
-    if (error) throw error
-    let updated = 0
-    let unresolved = 0
-    const results: any[] = []
-    for (const p of places || []) {
-      const gps = await findGps(p, index)
-      if (!gps) {
-        unresolved++
-        results.push({ id: p.id, name: p.name, status: 'unresolved' })
-        continue
-      }
-      const { error: ue } = await db.from('hradnik_places').update({ latitude: gps.latitude, longitude: gps.longitude, source_url: gps.source_url, last_verified_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', p.id)
-      if (ue) {
-        results.push({ id: p.id, name: p.name, status: 'error', error: ue.message })
-        continue
-      }
-      const { error: se } = await db.from('hradnik_place_sources').upsert({ place_id: p.id, source_key: 'hrady_zriceniny_gps', external_id: `${p.id}:gps`, source_url: gps.source_url, source_label: 'Hrady-zříceniny.cz – GPS', fetched_at: new Date().toISOString(), confidence: gps.confidence, raw_data: { latitude: gps.latitude, longitude: gps.longitude, matched_name: p.name }, is_active: true }, { onConflict: 'place_id,source_key,external_id' })
-      if (se) console.error('source upsert failed', p.id, se)
-      updated++
-      results.push({ id: p.id, name: p.name, status: 'updated', latitude: gps.latitude, longitude: gps.longitude, source_url: gps.source_url })
-    }
-    return Response.json({ ok: true, requested: limit, processed: places?.length || 0, updated, unresolved, sourceRecords: index.records, results })
-  } catch (e) {
-    console.error(e)
-    return Response.json({ error: String(e) }, { status: 500 })
-  }
-})
+function clean(v:unknown){return String(v??'').replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/\s+/g,' ').trim()}
+function norm(v=''){return clean(v).toLocaleLowerCase('cs-CZ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[–—−]/g,'-').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim()}
+function stem(v=''){return norm(v).replace(/\s+/g,'_')}
+function hrefFrom(raw=''){return raw.match(/href\s*=\s*["']([^"']+)["']/i)?.[1]||''}
+function abs(base:string,href:string){try{const u=new URL(href,base);if(u.hostname==='hrady-zriceniny.cz')u.hostname='www.hrady-zriceniny.cz';if(u.protocol==='http:')u.protocol='https:';return u.href}catch{return''}}
+function isObjectUrl(url=''){return /hrady-zriceniny\.cz\/(?:hrad|zamek|tvrz|objekt|tisk)_/i.test(url)&&!MASTER_URL.test(url)}
+function parseList(html:string,pageUrl:string){const out:any[]=[];for(const m of html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)){const cells:string[]=[];const raw:string[]=[];for(const c of m[1].matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)){raw.push(c[1]);cells.push(clean(c[1]))}if(cells.length<3)continue;const n=Number((cells[0]||'').replace(/[^0-9]/g,''));if(!Number.isFinite(n)||n<1||n>5000)continue;const idx=cells.findIndex((x,i)=>i>0&&x.length>=2&&x.length<=180);if(idx<1)continue;const name=cells[idx],character=cells[idx+1]||'',district=cells[idx+2]||'',region=cells[idx+3]||'';if(!/(hrad|zámek|zřícen|tvrz|klášter|komenda|opevně|bašta|věž|palác)/i.test(character))continue;const objectHref=raw.map(hrefFrom).map(h=>abs(pageUrl,h)).find(isObjectUrl)||'';out.push({name,character,district,region,url:objectHref})}return out}
+async function get(url:string,ms=25000){const c=new AbortController();const timer=setTimeout(()=>c.abort(),ms);try{const r=await fetch(url,{headers:{'User-Agent':'Hradnik/1.0 (+https://hradnik.vercel.app)'},signal:c.signal});if(!r.ok)return null;return await r.text()}catch{return null}finally{clearTimeout(timer)}}
+function extractGps(html:string){const text=clean(html);const m=text.match(/GPS:[\s\S]{0,700}?\|\s*(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/i);if(!m)return null;const latitude=Number(m[1]),longitude=Number(m[2]);if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||latitude<48||latitude>52||longitude<11||longitude>20)return null;return{latitude,longitude}}
+function urlCandidates(name:string,kind:string){const full=stem(name),dash=norm(name).split(' - ')[0].trim(),variants=[full,dash];if(dash.includes(' u '))variants.push(dash.split(' u ')[0].trim());const k=norm(kind);const prefixes=k.includes('zřícen')?['zricenina','hrad','zamek','tvrz']:k.includes('zám')?['zamek','hrad','tvrz']:k.includes('tvrz')?['tvrz','hrad','zamek']:['hrad','zricenina','zamek','tvrz'];const out:string[]=[];for(const v of [...new Set(variants)])for(const p of prefixes){const u=`https://www.hrady-zriceniny.cz/${p}_${v}.htm`;if(!out.includes(u))out.push(u)}return out}
+function pageMatches(p:any,html:string){const t=norm(html),district=norm(p.district||''),region=norm(p.region||'');if(district&&t.includes(district))return true;if(region&&t.includes(region))return true;const first=norm(p.name).split(' - ')[0].trim();return first.length>=5&&t.includes(first)}
+async function sourceIndex(){const all:any[]=[];const fetched=await Promise.all(PAGES.map(async page=>({page,html:await get(page)})));for(const x of fetched)if(x.html)all.push(...parseList(x.html,x.page));const byKey=new Map<string,any[]>(),byName=new Map<string,any[]>();for(const x of all){if(!x.url)continue;const nk=norm(x.name),key=`${nk}|${norm(x.district)}`;if(!byKey.has(key))byKey.set(key,[]);byKey.get(key)!.push(x);if(!byName.has(nk))byName.set(nk,[]);byName.get(nk)!.push(x)}return{byKey,byName,records:all.length}}
+async function findDirect(p:any,index:Awaited<ReturnType<typeof sourceIndex>>){const candidates:string[]=[],add=(u:string)=>{if(u&&!candidates.includes(u))candidates.push(u)};if(p.source_url&&isObjectUrl(p.source_url))add(p.source_url);for(const x of index.byKey.get(`${norm(p.name)}|${norm(p.district)}`)||[])add(x.url);const same=index.byName.get(norm(p.name))||[];if(same.length===1)add(same[0].url);for(const u of urlCandidates(p.name,p.kind||''))add(u);for(const url of candidates.slice(0,12)){const html=await get(url);if(!html||!pageMatches(p,html))continue;const gps=extractGps(html);if(gps)return{...gps,source_url:url,source:'Hrady-zříceniny.cz',confidence:0.99}}return null}
+function sparqlLiteral(v:string){return JSON.stringify(v).replace(/\\/g,'\\\\')}
+async function wikidataBatch(places:any[]){const pairs=places.slice(0,50).map(p=>`(${sparqlLiteral(p.name)}@cs ${sparqlLiteral(p.district||'')}@cs)`);if(!pairs.length)return new Map<string,any>();const q=`SELECT ?wanted ?district ?item ?coord ?adminLabel WHERE { VALUES (?wanted ?district) { ${pairs.join(' ')} } ?item rdfs:label ?wanted ; wdt:P625 ?coord ; wdt:P17 wd:Q213 . OPTIONAL { ?item wdt:P131 ?admin . ?admin rdfs:label ?adminLabel . FILTER(LANG(?adminLabel)="cs") } } LIMIT 1000`;const h=await get('https://query.wikidata.org/sparql?format=json&query='+encodeURIComponent(q),45000);if(!h)return new Map<string,any>();try{const j=JSON.parse(h),out=new Map<string,any[]>();for(const x of j.results?.bindings||[]){const name=x.wanted?.value||'',district=x.district?.value||'',coord=x.coord?.value?.match(/Point\(([-0-9.]+) ([-0-9.]+)\)/);if(!coord)continue;const lat=Number(coord[2]),lon=Number(coord[1]);if(lat<48||lat>52||lon<11||lon>20)continue;const key=`${norm(name)}|${norm(district)}`,arr=out.get(key)||[];arr.push({latitude:lat,longitude:lon,wikidata_id:x.item?.value?.split('/').pop(),admin:norm(x.adminLabel?.value||'')});out.set(key,arr)}const chosen=new Map<string,any>();for(const[key,arr]of out){const[,district]=key.split('|'),hit=arr.filter(x=>district&&(x.admin.includes(district)||district.includes(x.admin))),pool=hit.length?hit:arr;if(pool.length===1)chosen.set(key,{...pool[0],source:'Wikidata',source_url:`https://www.wikidata.org/wiki/${pool[0].wikidata_id}`,confidence:hit.length?.98:.93})}return chosen}catch{return new Map<string,any>()}}
+function searchScore(p:any,result:any,entity:any){const label=norm(result?.label||entity?.labels?.cs?.value||''),wanted=norm(p.name),desc=norm(entity?.descriptions?.cs?.value||entity?.descriptions?.en?.value||'');let s=0;if(label===wanted)s+=100;else if(label&&wanted.includes(label))s+=65;else if(label&&label.includes(wanted))s+=65;const words=wanted.split(' ').filter(w=>w.length>3);s+=words.filter(w=>label.includes(w)).length*8;if(/hrad|zámek|zřícen|tvrz|pevnost|hradisko|palác|ruin|castle|fort/i.test(desc+' '+label))s+=20;return s}
+async function wikidataSearchOne(p:any){try{const q=[p.name,p.district].filter(Boolean).join(' '),h=await get('https://www.wikidata.org/w/api.php?action=wbsearchentities&search='+encodeURIComponent(q)+'&language=cs&uselang=cs&format=json&limit=6');if(!h)return null;const j=JSON.parse(h);let best:any=null,bestScore=0;for(const r of j.search||[]){const id=r.id;if(!id)continue;const eh=await get(`https://www.wikidata.org/wiki/Special:EntityData/${id}.json`);if(!eh)continue;let e:any;try{e=JSON.parse(eh).entities?.[id]}catch{continue}const claim=e?.claims?.P625?.[0]?.mainsnak?.datavalue?.value,lat=Number(claim?.latitude),lon=Number(claim?.longitude);if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat<48||lat>52||lon<11||lon>20)continue;const score=searchScore(p,r,e);if(score>bestScore){bestScore=score;best={latitude:lat,longitude:lon,wikidata_id:id,source:'Wikidata search',source_url:`https://www.wikidata.org/wiki/${id}`,confidence:score>=100?.97:score>=70?.91:0}}}return bestScore>=70?best:null}catch{return null}}
+async function nominatim(p:any){const q=[p.name,p.district,p.region,'Česko'].filter(Boolean).join(', '),h=await get('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=3&countrycodes=cz&q='+encodeURIComponent(q),20000);if(!h)return null;try{const arr=JSON.parse(h);for(const x of arr){const lat=Number(x.lat),lon=Number(x.lon),display=norm(x.display_name||'');if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat<48||lat>52||lon<11||lon>20)continue;const wanted=norm(p.name),relevant=display.includes(wanted)||/castle|ruins|fort|manor|palace|hrad|zřícen|tvrz|zámek/i.test(String(x.type||'')+' '+String(x.class||''));if(relevant)return{latitude:lat,longitude:lon,source:'OpenStreetMap Nominatim',source_url:'https://www.openstreetmap.org/',confidence:display.includes(wanted)?.88:.80}}}catch{}return null}
+async function keyOk(req:Request){const{data}=await db.from('hradnik_sync_control').select('sync_key').eq('id',true).maybeSingle();const key=data?.sync_key||Deno.env.get('HRADNIK_GEOCODE_KEY')||'';if(!key)return true;return req.headers.get('x-hradnik-geocode-key')===key||req.headers.get('x-hradnik-sync-key')===key}
+Deno.serve(async req=>{if(req.method==='OPTIONS')return new Response('',{status:204});if(req.method!=='POST')return Response.json({ok:true,service:'hradnik-geocode',version:5});if(!(await keyOk(req)))return Response.json({error:'Unauthorized'},{status:401});try{const body=await req.json().catch(()=>({}));const limit=Math.min(25,Math.max(1,Number(body.limit)||15)),afterId=Math.max(0,Number(body.after_id)||0);const index=await sourceIndex();const{data:places,error}=await db.from('hradnik_places').select('id,name,kind,character,municipality,district,region,latitude,longitude,source_url').eq('is_visible',true).eq('is_current',true).or('latitude.is.null,longitude.is.null').gt('id',afterId).order('id').limit(limit);if(error)throw error;const direct=await Promise.all((places||[]).map(async p=>({p,gps:await findDirect(p,index)})));const unresolved=direct.filter(x=>!x.gps).map(x=>x.p);const wd=await wikidataBatch(unresolved);const searchCandidates=unresolved.filter(p=>!wd.get(`${norm(p.name)}|${norm(p.district||'')}`)).slice(0,8);const searched=await Promise.all(searchCandidates.map(async p=>({p,gps:await wikidataSearchOne(p)})));const searchMap=new Map(searched.filter(x=>x.gps).map(x=>[x.p.id,x.gps]));let updated=0,unresolvedCount=0,lastId=afterId;const results:any[]=[];let nomCount=0;for(const x of direct){let gps=x.gps;if(!gps)gps=wd.get(`${norm(x.p.name)}|${norm(x.p.district||'')}`)||null;if(!gps)gps=searchMap.get(x.p.id)||null;if(!gps&&nomCount<6){gps=await nominatim(x.p);nomCount++;if(gps&&nomCount<6)await new Promise(r=>setTimeout(r,1100))}if(!gps){unresolvedCount++;results.push({id:x.p.id,name:x.p.name,status:'unresolved'});lastId=Math.max(lastId,Number(x.p.id)||lastId);continue}const now=new Date().toISOString();const{error:ue}=await db.from('hradnik_places').update({latitude:gps.latitude,longitude:gps.longitude,wikidata_id:gps.wikidata_id||x.p.wikidata_id||null,source_url:gps.source_url||x.p.source_url,last_verified_at:now,updated_at:now}).eq('id',x.p.id);if(ue){results.push({id:x.p.id,name:x.p.name,status:'error',error:ue.message});lastId=Math.max(lastId,Number(x.p.id)||lastId);continue}await db.from('hradnik_place_sources').upsert({place_id:x.p.id,source_key:gps.source==='Wikidata'||gps.source==='Wikidata search'?'wikidata_gps':gps.source==='OpenStreetMap Nominatim'?'osm_nominatim_gps':'hrady_zriceniny_gps',external_id:`${x.p.id}:gps:${gps.source}`,source_url:gps.source_url||null,source_label:gps.source,fetched_at:now,confidence:gps.confidence,raw_data:{latitude:gps.latitude,longitude:gps.longitude,matched_name:x.p.name},is_active:true},{onConflict:'place_id,source_key,external_id'});updated++;lastId=Math.max(lastId,Number(x.p.id)||lastId);results.push({id:x.p.id,name:x.p.name,status:'updated',latitude:gps.latitude,longitude:gps.longitude,source:gps.source})}return Response.json({ok:true,version:5,requested:limit,after_id:afterId,last_id:lastId,processed:places?.length||0,updated,unresolved:unresolvedCount,sourceRecords:index.records,results})}catch(e){console.error(e);return Response.json({error:String(e)},{status:500})}})
