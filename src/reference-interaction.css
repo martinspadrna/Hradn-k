@@ -1,0 +1,26 @@
+/* Reference interaction: selected place opens as the right-hand map panel, not a new modal window. */
+@media (min-width:851px){
+  .hradnik-shield-marker{background:transparent!important;border:0!important}
+  .hradnik-marker-ring{display:grid;width:38px;height:38px;place-items:center;border:3px solid;border-radius:50%;background:rgba(8,12,14,.72);box-shadow:0 3px 12px rgba(0,0,0,.45)}
+  .hradnik-marker-ring img{width:32px;height:32px;display:block}
+  .leaflet-tile{filter:brightness(.78) saturate(1.15) contrast(1.06)!important}
+  .map-focus-card{display:none!important}
+  .overlay{position:fixed!important;inset:96px 20px 24px 214px!important;z-index:2500!important;display:flex!important;align-items:stretch!important;justify-content:flex-end!important;background:transparent!important;pointer-events:none!important}
+  .overlay .sheet{pointer-events:auto!important;width:300px!important;height:100%!important;max-height:none!important;overflow:auto!important;margin:0!important;padding:16px!important;border:1px solid #303b42!important;border-radius:12px!important;background:linear-gradient(180deg,#11181d,#0b1115)!important;color:#f2efe8!important;box-shadow:-14px 0 35px rgba(0,0,0,.38)!important}
+  .overlay .close{background:#141b20!important;color:#fff!important;border:1px solid #344047!important;border-radius:8px!important;padding:7px 10px!important}
+  .overlay .bigIcon{height:165px!important;border-radius:9px!important;background:#172026!important;color:#e4b437!important;overflow:hidden!important}
+  .overlay .sheet h2,.overlay .sheet h3{color:#f4f1ea!important}
+  .overlay .sheet p,.overlay .sheet small,.overlay .sheet .muted{color:#aeb6b5!important}
+  .overlay .sheet a{color:#e4b437!important}
+  .overlay .sheet button{border-radius:8px!important}
+  .overlay .sheet .primary{background:#e4b437!important;color:#0a0f12!important}
+  .overlay .sheet textarea,.overlay .sheet input[type=date]{background:#141b20!important;color:#fff!important;border-color:#344047!important}
+}
+@media(max-width:850px){
+  .hradnik-shield-marker{background:transparent!important;border:0!important}
+  .hradnik-marker-ring{display:grid;width:34px;height:34px;place-items:center;border:2px solid;border-radius:50%;background:rgba(8,12,14,.72)}
+  .hradnik-marker-ring img{width:30px;height:30px}
+  .leaflet-tile{filter:brightness(.72) saturate(1.1)!important}
+  .overlay{background:rgba(4,8,10,.35)!important;align-items:flex-end!important}
+  .overlay .sheet{width:100%!important;max-height:48dvh!important;border-radius:18px 18px 0 0!important;background:#0d1418!important;color:#f2efe8!important;border:1px solid #303b42!important}
+}
