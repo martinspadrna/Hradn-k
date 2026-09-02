@@ -1,5 +1,5 @@
-const NAV_LABELS=['Mapa','Seznam','Oblíbené','Vyhledávání','Kategorie','O aplikaci']
-const NAV_ICONS=['map','list','favorites','search','grid','info']
+const NAV_LABELS=['Domů','Katalog','Mapa','Moje','Deník','Statistiky']
+const NAV_ICONS=['home','list','map','favorites','diary','stats']
 const iconForKind=kind=>{const k=String(kind||'').toLocaleLowerCase('cs-CZ');if(k.includes('klášter'))return'/icons/diary.svg';if(k.includes('tvrz'))return'/icons/list.svg';return'/icons/home.svg'}
 
 let observer=null
@@ -38,14 +38,12 @@ function buildSidebar(app,nav){
 
 function beautifyPlaces(){document.querySelectorAll('.placeIcon').forEach(node=>{if(node.dataset.redesigned==='1')return;const kind=node.parentElement?.querySelector('.placeCopy small')?.textContent?.split('·')[0]?.trim()||'';node.textContent='';const img=document.createElement('img');img.src=iconForKind(kind);img.alt='';node.appendChild(img);node.dataset.redesigned='1'})}
 
-function ensureNearbyPanel(){return}
-
 function enhanceMap(){
  const map=document.querySelector('#map');if(!map)return
  if(map.parentElement?.classList.contains('map-layout'))return
  const parent=map.parentElement;if(!parent)return
  const layout=document.createElement('div');layout.className='map-layout';parent.insertBefore(layout,map);layout.appendChild(map)
- const panel=document.createElement('aside');panel.className='map-focus-card';panel.innerHTML='<div class="focus-placeholder"><strong>Klikni na památku v mapě</strong><br><span>Otevře se její detail přímo vedle mapy s fotografií, informacemi, stavem návštěvy a navigací.</span></div>'
+ const panel=document.createElement('aside');panel.className='map-focus-card';panel.innerHTML='<div class="focus-placeholder"><strong>Vyber památku na mapě</strong><br><span>Detail se otevře přímo vedle mapy s informacemi, stavem návštěvy a navigací.</span></div>'
  layout.appendChild(panel)
  requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')))
 }
