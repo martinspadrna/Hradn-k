@@ -16,6 +16,7 @@
   .redesign-brand span{display:block!important;margin-top:5px!important;font-size:8.5px!important;line-height:1.28!important;color:#777f7c!important}
   .redesign-sidebar .nav{display:flex!important;flex-direction:column!important;gap:3px!important;width:100%!important;padding:0!important;margin:0!important;overflow:visible!important}
   .redesign-sidebar .nav button{width:100%!important;min-width:0!important;height:40px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;text-align:left!important;padding:6px 7px!important;border:1px solid transparent!important;border-radius:7px!important;background:transparent!important;color:#b9bcba!important;font-size:12.5px!important;font-weight:900!important;letter-spacing:0!important;white-space:nowrap!important;overflow:hidden!important;transform:none!important;filter:none!important}
+  .redesign-sidebar .nav button::before,.redesign-sidebar .nav button::after{content:none!important;display:none!important}
   .redesign-sidebar .nav button:hover{background:#12191c!important;color:#f0eee7!important}
   .redesign-sidebar .nav button.active{background:#302719!important;border-color:#5a471c!important;color:#f2c84d!important;box-shadow:inset 3px 0 0 #d8aa31!important}
   .redesign-sidebar .nav button img{width:24px!important;height:24px!important;display:block!important;flex:0 0 24px!important;margin:0 10px 0 0!important}
