@@ -1,0 +1,28 @@
+/* Hradník reference map — map-only presentation. */
+
+.map-layout{display:grid;grid-template-columns:minmax(0,1fr) 0;gap:12px;position:relative;min-width:0}
+.map-layout #map{width:100%;min-width:0;height:590px;border:1px solid #273137;border-radius:10px;overflow:hidden;background:#0c1215;box-shadow:0 12px 32px rgba(0,0,0,.22)}
+.map-layout .map-focus-card{display:none!important}
+.leaflet-container{font:12px/1.4 Inter,ui-sans-serif,system-ui,sans-serif;background:#0c1215!important}
+.leaflet-control-zoom{border:1px solid #303a3f!important;border-radius:7px!important;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.28)!important}
+.leaflet-control-zoom a{background:#0d1418!important;color:#d7dcde!important;border-color:#303a3f!important}
+.leaflet-control-zoom a:hover{background:#172126!important;color:#f4c84a!important}
+.hradnik-map-toggle{display:flex!important;gap:0!important;border:1px solid #303a3f!important;border-radius:7px!important;overflow:hidden!important;background:#0d1418!important;box-shadow:0 6px 18px rgba(0,0,0,.28)!important}
+.hradnik-map-toggle button{min-width:78px!important;height:34px!important;padding:0 9px!important;border:0!important;background:#0d1418!important;color:#8f9a9f!important;font:700 10px/34px Inter,ui-sans-serif,sans-serif!important}
+.hradnik-map-toggle button+button{border-left:1px solid #303a3f!important}
+.hradnik-map-toggle button.active{background:#171e22!important;color:#f4c84a!important;box-shadow:inset 0 -2px 0 #e4b437!important}
+.leaflet-control-attribution{background:rgba(7,10,12,.82)!important;color:#667277!important}
+.leaflet-control-attribution a{color:#9b8a59!important}
+.leaflet-tile{filter:brightness(.74) saturate(.72) contrast(1.06)!important}
+.leaflet-marker-pane,.leaflet-shadow-pane{z-index:600!important}
+
+/* The original app draws circles. Give them the restrained gold/dark treatment from the reference. */
+.leaflet-overlay-pane svg path{vector-effect:non-scaling-stroke;transition:filter .15s ease,stroke-width .15s ease}
+.leaflet-overlay-pane svg path:hover{filter:brightness(1.18);stroke-width:4px!important}
+
+@media (min-width:851px){
+  #content>section:has(>#map){margin:0!important}
+  #content>section:has(>#map)>.sectionTitle,#content>section:has(>#map)>.mapFilters,#content>section:has(>#map)>.mapLegend{display:none!important}
+  #content>section:has(>#map){position:relative}
+  #content>section:has(>#map)::before{content:'MAPA PAMÁTEK';position:absolute;z-index:5;left:16px;top:14px;padding:6px 9px;border:1px solid #313b40;border-radius:5px;background:rgba(8,12,14,.84);color:#d2d8da;font-size:9px;font-weight:800;letter-spacing:.16em;pointer-events:none}
+}
