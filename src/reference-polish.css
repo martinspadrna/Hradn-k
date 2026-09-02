@@ -1,0 +1,81 @@
+/* Final visual pass: match the supplied Hradník reference instead of stacking another theme. */
+
+@media (min-width:851px){
+  header .logo{
+    font-size:0!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:10px!important;
+    min-width:0!important;
+  }
+  header .logo::before{
+    content:"";
+    width:34px;height:34px;flex:0 0 34px;
+    display:block;
+    background:url('/hradnik-app-icon.svg') center/contain no-repeat;
+    filter:drop-shadow(0 4px 8px rgba(216,170,49,.18));
+  }
+  header .logo::after{
+    content:'Hradník';
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:27px;line-height:1;font-weight:700;letter-spacing:.02em;
+    color:#e4b437;
+  }
+  .redesign-brand img{object-fit:contain!important}
+
+  /* The map is the primary surface. Keep the filters as a compact overlay. */
+  .map-layout{position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr) 300px!important}
+  .map-layout #map{min-width:0!important}
+  .map-layout .map-focus-card{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+  .map-focus-card:empty{display:flex!important}
+  .map-focus-card .focus-placeholder{display:flex!important;flex-direction:column!important;gap:8px!important}
+  .map-focus-card .focus-placeholder strong{font-family:Georgia,"Times New Roman",serif!important;font-weight:700!important}
+
+  .overlay{position:fixed!important;inset:96px 20px 24px 214px!important;z-index:2500!important;display:flex!important;align-items:stretch!important;justify-content:flex-end!important;background:transparent!important;pointer-events:none!important}
+  .overlay .sheet{pointer-events:auto!important;width:300px!important;height:100%!important;max-height:none!important;box-sizing:border-box!important;overflow:auto!important;margin:0!important;padding:18px!important;border:1px solid #303b42!important;border-radius:12px!important;background:linear-gradient(180deg,#11181d,#0b1115)!important;color:#f2efe8!important;box-shadow:-14px 0 35px rgba(0,0,0,.38)!important}
+  .overlay .sheet h1,.overlay .sheet h2,.overlay .sheet h3{color:#f4f1ea!important}
+  .overlay .sheet p,.overlay .sheet small,.overlay .sheet .muted{color:#aeb6b5!important}
+  .overlay .sheet a{color:#e4b437!important}
+  .overlay .sheet .primary{background:#e4b437!important;color:#0a0f12!important}
+  .overlay .sheet button{border-radius:8px!important}
+  .overlay .close{background:#141b20!important;color:#fff!important;border:1px solid #344047!important;border-radius:8px!important}
+
+  .hradnik-map-toggle{position:relative!important;z-index:1200!important}
+}
+
+@media (max-width:850px){
+  html,body,#app{min-height:100%!important;background:#05080a!important}
+  header{height:60px!important;padding:6px 8px!important;box-sizing:border-box!important}
+  header .top{height:48px!important;width:100%!important;margin:0!important;min-height:48px!important}
+  header .top>div:first-child{display:flex!important;align-items:center!important;min-width:0!important}
+  header .logo{font-size:0!important;display:flex!important;align-items:center!important;gap:8px!important}
+  header .logo::before{content:"";width:30px;height:30px;flex:0 0 30px;background:url('/hradnik-app-icon.svg') center/contain no-repeat}
+  header .logo::after{content:'Hradník';font-family:Georgia,"Times New Roman",serif;font-size:21px;font-weight:700;color:#e4b437}
+  header .account b{display:none!important}
+  header .account button{height:38px!important;padding:6px 10px!important;font-size:11px!important}
+  main.wrap{width:100%!important;margin:0 0 68px!important;padding:0!important}
+  #content{width:100%!important;min-width:0!important}
+  .map-layout{display:flex!important;flex-direction:column!important;width:100%!important;margin:0!important;border:0!important;border-radius:0!important;overflow:visible!important;background:#05080a!important}
+  .map-layout #map{order:1!important;width:100%!important;height:calc(100dvh - 220px)!important;min-height:420px!important;border:0!important;border-radius:0!important}
+  .map-layout .map-focus-card{order:2!important;width:100%!important;height:auto!important;min-height:120px!important;box-sizing:border-box!important;border:0!important;border-top:1px solid #29343a!important;border-radius:0!important;padding:14px!important;background:#0b1115!important}
+  .map-focus-brand{display:none!important}
+  .focus-placeholder{margin:0!important;padding:0!important;border:0!important;background:transparent!important;text-align:left!important}
+  .focus-placeholder strong{font-size:18px!important;color:#f4f1ea!important}
+  .focus-placeholder span{font-size:12px!important;color:#9da6a3!important}
+
+  .overlay{position:fixed!important;inset:0!important;z-index:2500!important;display:flex!important;align-items:flex-end!important;justify-content:center!important;background:rgba(4,8,10,.45)!important;pointer-events:none!important}
+  .overlay .sheet{pointer-events:auto!important;width:100%!important;max-width:none!important;max-height:70dvh!important;overflow:auto!important;box-sizing:border-box!important;margin:0!important;border-radius:18px 18px 0 0!important;border:1px solid #303b42!important;background:#0d1418!important;color:#f2efe8!important;box-shadow:0 -14px 35px rgba(0,0,0,.45)!important}
+  .overlay .sheet h1,.overlay .sheet h2,.overlay .sheet h3{color:#f4f1ea!important}
+  .overlay .sheet p,.overlay .sheet small,.overlay .sheet .muted{color:#aeb6b5!important}
+  .overlay .sheet a{color:#e4b437!important}
+  .overlay .sheet .primary{background:#e4b437!important;color:#0a0f12!important}
+
+  .hradnik-map-toggle{margin-top:4px!important}
+}
+
+@media (max-width:520px){
+  header .logo::before{width:28px;height:28px;flex-basis:28px}
+  header .logo::after{font-size:20px}
+  .map-layout #map{height:calc(100dvh - 230px)!important;min-height:390px!important}
+  .map-layout .map-focus-card{min-height:105px!important;padding:12px!important}
+}
