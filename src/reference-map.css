@@ -1,0 +1,48 @@
+/* Exact visual layer based on the supplied Hradník map reference. */
+@media (min-width:851px){
+  body{background:#0a0f12!important}
+  header{left:0!important;height:82px!important;background:linear-gradient(180deg,#0b1115,#0a0f12)!important;border-bottom:1px solid #263139!important;box-shadow:0 8px 24px rgba(0,0,0,.35)!important}
+  header .top{height:82px!important;margin:0 26px!important;gap:24px!important}
+  header .top>div:first-child{display:flex!important;align-items:center!important;gap:13px!important;min-width:210px!important}
+  header .logo{font-family:Georgia,"Times New Roman",serif!important;font-size:27px!important;letter-spacing:.025em!important;color:#e4b437!important}
+  header .sub{display:none!important}
+  .globalSearchWrap{flex:0 0 410px!important;width:410px!important}
+  .globalSearch{width:410px!important;height:46px!important;background:#141b20!important;border:1px solid #303b42!important;border-radius:8px!important;font-size:14px!important;padding-left:44px!important}
+  header .account{margin-left:auto!important;gap:10px!important}
+  header .account b{font-size:13px!important;color:#e9e5dc!important}
+  header .account button{font-size:13px!important;height:44px!important;border-radius:10px!important}
+  .redesign-sidebar{width:194px!important;top:82px!important;bottom:0!important;padding:26px 20px 20px!important;background:#0b1115!important;border-right:1px solid #263139!important;box-shadow:none!important}
+  .redesign-brand{display:none!important}
+  .redesign-sidebar .nav{gap:7px!important}
+  .redesign-sidebar .nav button{height:47px!important;border-radius:8px!important;padding:8px 13px!important;font-size:14px!important;color:#f0eee8!important}
+  .redesign-sidebar .nav button.active{background:#38301f!important;border-color:#554621!important;color:#f1c34a!important;box-shadow:none!important}
+  .redesign-sidebar .nav button img{width:25px!important;height:25px!important;margin-right:14px!important}
+  .redesign-side-footer{margin-top:auto!important;padding:15px 12px 0!important;font-size:12px!important;line-height:1.45!important}
+  main.wrap{margin:96px 20px 24px 214px!important}
+  #content>section{max-width:none!important}
+  .map-layout{grid-template-columns:minmax(0,1fr) 300px!important;gap:0!important;margin-top:0!important;border:1px solid #2a343a!important;border-radius:0 0 12px 12px!important;overflow:hidden!important;background:#0c1216!important}
+  .map-layout #map{height:590px!important;min-height:590px!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+  .map-layout .map-focus-card{height:590px!important;border:0!important;border-left:1px solid #2a343a!important;border-radius:0!important;padding:16px!important;background:linear-gradient(180deg,#11181d,#0b1115)!important;box-shadow:none!important}
+  .map-focus-brand{display:none!important}
+  .focus-placeholder{margin:0!important;border:0!important;padding:0!important;text-align:left!important;background:transparent!important;color:#f1efe9!important}
+  .focus-placeholder:before{display:none!important}
+  .focus-placeholder strong{font-size:24px!important;color:#f4f1ea!important}
+  .focus-placeholder span{display:block!important;margin-top:10px!important;font-size:13px!important;color:#9ba39f!important}
+  .sectionTitle,.mapFilters,.mapLegend{display:none!important}
+  #content{position:relative!important}
+  #content:before{content:'2 672 památek';position:absolute;right:188px;top:-73px;color:#f3f0e8;font-size:15px;font-weight:800;z-index:4}
+  #content:after{content:'♡   ⚙';position:absolute;right:14px;top:-79px;color:#f3f0e8;font-size:29px;letter-spacing:16px;z-index:4;white-space:nowrap}
+  #map:after{content:'⚑ Filtry';position:absolute;right:14px;bottom:14px;z-index:1000;background:#11181d;color:#fff;padding:11px 15px;border-radius:9px;border:1px solid #344047}
+}
+@media(max-width:850px){
+  header{height:74px!important;background:#0a1014!important}
+  header .top{height:74px!important}
+  header .top>div:first-child{display:flex!important}
+  .redesign-sidebar{height:78px!important}
+  .redesign-sidebar .nav button{font-size:10px!important}
+  main.wrap{margin-top:10px!important}
+  .sectionTitle,.mapFilters,.mapLegend{display:none!important}
+  .map-layout{display:block!important;border:0!important}
+  .map-layout #map{height:calc(100dvh - 235px)!important;min-height:500px!important;border-radius:0!important}
+  .map-focus-card{border-radius:0!important;margin-top:0!important;border-top:1px solid #2a343a!important}
+}
