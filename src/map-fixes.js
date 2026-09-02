@@ -1,7 +1,7 @@
 import L from 'leaflet'
 
 const style = document.createElement('style')
-style.textContent = `.overlay{z-index:10000!important}.overlay .sheet{z-index:10001!important}.hradnik-map-toggle{display:flex;background:#fff;border:1px solid #ddd;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px #1113}.hradnik-map-toggle button{border:0;border-radius:0;padding:9px 11px;min-width:82px;background:#fff;color:#4b5563;font-weight:800;font-size:12px;cursor:pointer}.hradnik-map-toggle button+button{border-left:1px solid #e5e7eb}.hradnik-map-toggle button.active{background:#7657ff;color:#fff}@media(max-width:520px){.hradnik-map-toggle button{min-width:74px;padding:10px 8px;font-size:11px}.leaflet-control-zoom a{width:40px!important;height:40px!important;line-height:40px!important}}`
+style.textContent = `.overlay{z-index:10000!important}.overlay .sheet{z-index:10001!important}.hradnik-map-toggle{display:flex;background:#fff;border:1px solid #ddd;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px #1113}.hradnik-map-toggle button{border:0;border-radius:0;padding:9px 11px;min-width:82px;background:#fff;color:#4b5563;font-weight:800;font-size:12px;cursor:pointer}.hradnik-map-toggle button+button{border-left:1px solid #e5e7eb}.hradnik-map-toggle button.active{background:#7657ff;color:#fff}@media(max-width:520px){.hradnik-map-toggle button{min-width:74px;padding:10px 8px;font-size:11px}.leaflet-control-zoom a{width:40px!important;height:40px!important;line-height:40px!important}}`
 document.head.appendChild(style)
 
 function tileLayers(map){
@@ -12,29 +12,31 @@ function tileLayers(map){
 
 function installToggle(){
   const map=this
-  const existingControl=map._hradnikLayerToggle
-  if(existingControl)return
+  if(map._hradnikLayerToggle)return
 
-  const standardLayers=tileLayers(map)
-  const satellite=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'})
+  const satellite=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri, Maxar, Earthstar Geographics'})
   const Control=L.Control.extend({
     options:{position:'topright'},
     onAdd(){
       const wrap=L.DomUtil.create('div','hradnik-map-toggle leaflet-bar')
       const standard=L.DomUtil.create('button','',wrap)
       const aerial=L.DomUtil.create('button','',wrap)
-      standard.type='button'
-      aerial.type='button'
-      standard.textContent='🗺️ Mapa'
-      aerial.textContent='🛰️ Letecká'
+      standard.type='button';aerial.type='button'
+      standard.textContent='🗺️ Mapa';aerial.textContent='🛰️ Letecká'
       standard.classList.add('active')
+
       const normal=()=>{
         if(satellite._map)map.removeLayer(satellite)
-        standardLayers.forEach(layer=>{if(!map.hasLayer(layer))layer.addTo(map)})
+        const layers=tileLayers(map).filter(layer=>layer!==satellite)
+        if(!layers.length){
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map)
+        }else{
+          layers.forEach(layer=>{if(!map.hasLayer(layer))layer.addTo(map)})
+        }
         standard.classList.add('active');aerial.classList.remove('active')
       }
       const sat=()=>{
-        standardLayers.forEach(layer=>{if(map.hasLayer(layer))map.removeLayer(layer)})
+        tileLayers(map).forEach(layer=>{if(layer!==satellite)map.removeLayer(layer)})
         if(!map.hasLayer(satellite))satellite.addTo(map)
         aerial.classList.add('active');standard.classList.remove('active')
       }
@@ -44,11 +46,15 @@ function installToggle(){
       return wrap
     }
   })
-  const control=new Control()
-  map.addControl(control)
-  map._hradnikLayerToggle=control
+  map.addControl(new Control())
+  map._hradnikLayerToggle=true
+
+  // mapView adds its standard OSM layer immediately after L.map() returns.
+  // Keep the standard button authoritative once that layer exists.
+  setTimeout(()=>{
+    if(!map._container?.isConnected)return
+    if(tileLayers(map).length===0)L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map)
+  },0)
 }
 
-// Leaflet supports init hooks on Map, which lets us attach the control to every
-// map instance without replacing the ESM namespace's read-only L.map export.
 L.Map.addInitHook(installToggle)
