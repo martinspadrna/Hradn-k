@@ -4,11 +4,11 @@
   "short_name":"Hradník",
   "description":"Katalog a deník hradů, zámků, zřícenin a tvrzí.",
   "lang":"cs",
-  "start_url":"/?v=6",
+  "start_url":"/?v=7",
   "display":"standalone",
   "background_color":"#070a0c",
   "theme_color":"#070a0c",
   "icons":[
-    {"src":"/apple-touch-icon.png?v=2","sizes":"180x180","type":"image/png","purpose":"any maskable"}
+    {"src":"/apple-touch-icon.png?v=3","sizes":"180x180","type":"image/png","purpose":"any maskable"}
   ]
 }
