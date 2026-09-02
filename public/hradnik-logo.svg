@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 180"><defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6cf62"/><stop offset="0.55" stop-color="#e4b437"/><stop offset="1" stop-color="#b98216"/></linearGradient></defs><rect width="620" height="180" fill="none"/><path d="M88 12 145 30v70c0 42-24 59-57 68-33-9-57-26-57-68V30L88 12Z" fill="#0b1013" stroke="url(#gold)" stroke-width="6"/><path d="M50 109V77h11V62h13v15h10v32H50Zm55 0V77h10V62h13v15h10v32h-33Z" fill="url(#gold)"/><path d="M76 109V53h8V40h8v13h8v56H76Z" fill="url(#gold)"/><path d="M79 40 88 27l9 13H79Z" fill="url(#gold)"/><path d="M84 109V94c0-7 9-7 9 0v15H84Z" fill="#0b1013"/><rect x="84" y="58" width="4" height="7" rx="1" fill="#0b1013"/><rect x="92" y="58" width="4" height="7" rx="1" fill="#0b1013"/><rect x="58" y="82" width="4" height="7" rx="1" fill="#0b1013"/><rect x="116" y="82" width="4" height="7" rx="1" fill="#0b1013"/><text x="174" y="112" fill="url(#gold)" font-family="Georgia, 'Times New Roman', serif" font-size="64" font-weight="600" letter-spacing="2">HRADNÍK</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 180">
+<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6cf62"/><stop offset=".55" stop-color="#e4b437"/><stop offset="1" stop-color="#b98216"/></linearGradient></defs>
+<rect width="620" height="180" fill="none"/>
+<g transform="translate(4 0) scale(.42)">
+<path d="M256 46 410 96v150c0 105-62 174-154 213-92-39-154-108-154-213V96L256 46Z" fill="#0b1013" stroke="url(#gold)" stroke-width="16"/>
+<path d="M143 326V207h39v-48h43v48h62v-48h43v48h39v119H143Z" fill="url(#gold)"/>
+<path d="M211 326v-72c0-27 90-27 90 0v72h-90Z" fill="#0b1013"/>
+<path d="M220 207V139h72v68h-72Z" fill="url(#gold)"/>
+<path d="M212 140 256 86l44 54h-88Z" fill="url(#gold)"/>
+<rect x="236" y="153" width="12" height="18" rx="2" fill="#0b1013"/>
+<rect x="264" y="153" width="12" height="18" rx="2" fill="#0b1013"/>
+<rect x="164" y="224" width="12" height="18" rx="2" fill="#0b1013"/>
+<rect x="336" y="224" width="12" height="18" rx="2" fill="#0b1013"/>
+</g>
+<text x="166" y="112" fill="url(#gold)" font-family="Georgia, 'Times New Roman', serif" font-size="61" font-weight="600" letter-spacing="2">HRADNÍK</text>
+</svg>
