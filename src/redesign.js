@@ -9,12 +9,21 @@ function addGlobalSearch(header){
 
 function buildSidebar(app,header,nav){
  let side=app.querySelector('.redesign-sidebar');if(!side){side=document.createElement('aside');side.className='redesign-sidebar';const brand=document.createElement('div');brand.className='redesign-brand';brand.innerHTML='<img src="/hradnik-app-icon.svg" alt=""><div><b>HRADNÍK</b><span>Hrady · zámky · zříceniny<br>· tvrze · kláštery</span></div>';const foot=document.createElement('div');foot.className='redesign-side-footer';foot.innerHTML='<b>Hradník</b>Objevuj.<br>Poznávej.<br>Chraň.';side.append(brand,foot);app.insertBefore(side,app.firstChild)}
- if(nav.parentElement!==side)side.insertBefore(nav,side.querySelector('.redesign-side-footer'));nav.classList.add('redesign-nav');nav.querySelectorAll('button').forEach((b,i)=>{b.textContent=NAV_LABELS[i]||b.textContent.trim();let img=b.querySelector(':scope > img');if(!img){img=document.createElement('img');b.prepend(img)}img.src=`/icons/${NAV_ICONS[i]||'nav-map'}.svg`;img.alt='';img.setAttribute('aria-hidden','true')})
+ if(nav.parentElement!==side)side.insertBefore(nav,side.querySelector('.redesign-side-footer'))
+ nav.classList.add('redesign-nav')
+ nav.querySelectorAll('button').forEach((b,i)=>{
+   if(b.dataset.redesignReady==='1')return
+   b.textContent=NAV_LABELS[i]||b.textContent.trim()
+   const img=document.createElement('img');img.src=`/icons/${NAV_ICONS[i]||'nav-map'}.svg`;img.alt='';img.setAttribute('aria-hidden','true');b.prepend(img)
+   b.dataset.redesignReady='1'
+ })
 }
 
 function beautifyPlaces(){document.querySelectorAll('.placeIcon').forEach(node=>{if(node.dataset.redesigned==='1')return;const kind=node.parentElement?.querySelector('.placeCopy small')?.textContent?.split('·')[0]?.trim()||'';node.textContent='';const img=document.createElement('img');img.src=iconForKind(kind);img.alt='';node.appendChild(img);node.dataset.redesigned='1'})}
 
 function enhanceMap(){const map=document.querySelector('#map');if(!map)return;if(!map.parentElement.classList.contains('map-layout')){const parent=map.parentElement;const layout=document.createElement('div');layout.className='map-layout';parent.insertBefore(layout,map);layout.appendChild(map);const panel=document.createElement('aside');panel.className='map-focus-card';panel.innerHTML='<div class="map-focus-brand"><img src="/hradnik-app-icon.svg" alt=""><b>VYBRANÁ PAMÁTKA</b></div><div class="focus-placeholder"><strong>Klikni na památku v mapě</strong><br><span>Otevře se její detail s informacemi, stavem návštěvy a možností navigace.</span></div>';layout.appendChild(panel)}requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')))}
 function polishPage(){const main=document.querySelector('main.wrap');if(!main)return;main.classList.add('redesign-main');const title=document.querySelector('#content h1');if(title)title.classList.add('redesign-title');beautifyPlaces();if(document.querySelector('#map'))enhanceMap()}
-function apply(){const app=document.querySelector('#app');if(!app)return;const header=app.querySelector('header');const nav=app.querySelector('#nav');if(header&&nav){buildSidebar(app,header,nav);addGlobalSearch(header)}polishPage()}
-let busy=false;const observer=new MutationObserver(()=>{if(busy)return;busy=true;queueMicrotask(()=>{try{apply()}finally{busy=false}})});const start=()=>{const app=document.querySelector('#app');if(!app)return;observer.observe(app,{childList:true,subtree:true});apply()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start()
+let observer
+function apply(){const app=document.querySelector('#app');if(!app)return;observer?.disconnect();const header=app.querySelector('header');const nav=app.querySelector('#nav');if(header&&nav){buildSidebar(app,header,nav);addGlobalSearch(header)}polishPage();observer?.observe(app,{childList:true,subtree:true})}
+observer=new MutationObserver(()=>apply())
+const start=()=>{const app=document.querySelector('#app');if(!app)return;apply()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start()
