@@ -1,6 +1,9 @@
 /* Final mobile reference layer. Loaded last so legacy styles cannot override it. */
 @media (max-width:850px){
-  body{padding-bottom:calc(76px + env(safe-area-inset-bottom))!important;overflow-x:hidden!important}
+  html,body,#app{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important}
+  html{overflow-x:hidden!important}
+  body{padding-bottom:calc(76px + env(safe-area-inset-bottom))!important;overflow-x:hidden!important;touch-action:pan-y!important}
+  #app{overflow-x:clip!important}
 
   #app .redesign-sidebar{
     position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;
@@ -33,18 +36,39 @@
   #app .redesign-sidebar #nav button.active img[data-redesign-icon],#app .redesign-sidebar .redesign-nav button.active img[data-redesign-icon]{opacity:1!important;filter:none!important}
   #app .redesign-sidebar #nav button::before,#app .redesign-sidebar #nav button::after,#app .redesign-sidebar .redesign-nav button::before,#app .redesign-sidebar .redesign-nav button::after{content:none!important}
 
-  header{padding-top:0!important;padding-bottom:0!important;height:60px!important;border-radius:0!important}
-  header .top{height:60px!important;min-height:60px!important;margin:0 12px!important}
-  main.wrap{margin:70px 10px calc(84px + env(safe-area-inset-bottom))!important}
+  header{padding-top:0!important;padding-bottom:0!important;height:60px!important;border-radius:0!important;width:100%!important}
+  header .top{height:60px!important;min-height:60px!important;margin:0 12px!important;width:auto!important;max-width:none!important}
+  main.wrap{width:calc(100vw - 20px)!important;max-width:none!important;min-width:0!important;margin:70px 10px calc(84px + env(safe-area-inset-bottom))!important;padding:0!important}
+  #content,#content>section{width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important}
 
-  /* Remove the last legacy emoji decorations from the mobile home. */
+  /* The map must fill the actual phone viewport. Leaflet can otherwise keep the width it had at creation time. */
+  #content>section:has(>#map){width:100%!important;min-width:0!important;max-width:none!important;overflow:visible!important}
+  .map-layout{display:block!important;width:100%!important;min-width:0!important;max-width:none!important;margin-top:8px!important;overflow:visible!important}
+  .map-layout #map,#content #map{
+    display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
+    height:calc(100dvh - 330px)!important;min-height:430px!important;
+    margin:0!important;box-sizing:border-box!important;border-radius:12px!important;overflow:hidden!important;
+    touch-action:pan-x pan-y pinch-zoom!important;
+  }
+  .map-focus-card{width:100%!important;max-width:none!important;box-sizing:border-box!important}
+
+  /* Keep the legend dark and compact on a narrow phone. */
+  .mapLegend{display:flex!important;width:100%!important;box-sizing:border-box!important;max-width:none!important;
+    padding:8px 10px!important;margin:6px 0 10px!important;gap:6px 10px!important;
+    background:#0d1418!important;color:#9da6aa!important;border:1px solid #2b353a!important;border-radius:9px!important;
+    font-size:9px!important;line-height:1.2!important;overflow:hidden!important}
+  .mapLegend span{white-space:nowrap!important}
+  .mapFilters{width:100%!important;max-width:none!important;box-sizing:border-box!important}
+
+  /* Remove the last legacy emoji decoration from the mobile home without changing the actual heading text. */
   #content .sectionTitle h2{font-size:28px!important;letter-spacing:-.035em!important}
-  #content .sectionTitle h2::first-letter{font-size:0!important}
-  #content #allMine{background:#f1f3f4!important;color:#0b1013!important;border:1px solid #d9dde0!important;border-radius:12px!important;min-height:44px!important;padding:0 15px!important;font-weight:800!important}
+  #content #allMine{background:#11181c!important;color:#dce1e3!important;border:1px solid #303a40!important;border-radius:10px!important;min-height:44px!important;padding:0 15px!important;font-weight:800!important}
 }
 @media(max-width:520px){
   #app .redesign-sidebar{height:calc(70px + env(safe-area-inset-bottom))!important}
   #app .redesign-sidebar #nav,#app .redesign-sidebar .redesign-nav{height:66px!important}
   #app .redesign-sidebar #nav button,#app .redesign-sidebar .redesign-nav button{height:62px!important;min-height:62px!important;border-radius:10px!important;font-size:8.5px!important}
   #app .redesign-sidebar #nav button img[data-redesign-icon],#app .redesign-sidebar .redesign-nav button img[data-redesign-icon]{width:21px!important;height:21px!important;min-width:21px!important;min-height:21px!important;flex-basis:21px!important}
+  main.wrap{width:calc(100vw - 14px)!important;margin-left:7px!important;margin-right:7px!important}
+  .map-layout #map,#content #map{height:calc(100dvh - 315px)!important;min-height:420px!important}
 }
