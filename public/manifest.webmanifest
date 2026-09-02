@@ -7,5 +7,7 @@
   "display":"standalone",
   "background_color":"#070a0c",
   "theme_color":"#070a0c",
-  "icons":[{"src":"/hradnik-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+  "icons":[
+    {"src":"/hradnik-app-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
 }
