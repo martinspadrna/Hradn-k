@@ -1,5 +1,5 @@
 const NAV_LABELS=['Domů','Katalog','Mapa','Moje','Deník','Statistiky']
-const NAV_ICONS=['nav-map','nav-list','nav-heart','nav-search','nav-grid','nav-info']
+const NAV_ICONS=['home','list','map','favorites','diary','stats']
 const iconForKind=kind=>{const k=String(kind||'').toLocaleLowerCase('cs-CZ');if(k.includes('zřícen'))return'/icons/home.svg';if(k.includes('zámek'))return'/icons/home.svg';if(k.includes('tvrz'))return'/icons/list.svg';if(k.includes('klášter'))return'/icons/diary.svg';if(k.includes('opev'))return'/icons/home.svg';return'/icons/home.svg'}
 
 let observer=null
@@ -27,9 +27,12 @@ function buildSidebar(app,nav){
  const footer=side.querySelector('.redesign-side-footer');if(nav.parentElement!==side)side.insertBefore(nav,footer||null)
  nav.classList.add('redesign-nav')
  nav.querySelectorAll('button').forEach((b,i)=>{
-  if(b.dataset.redesignReady==='1')return
-  const label=NAV_LABELS[i]||b.textContent.trim();b.textContent=label
-  const img=document.createElement('img');img.src=`/icons/${NAV_ICONS[i]||'nav-map'}.svg`;img.alt='';img.setAttribute('aria-hidden','true');b.prepend(img);b.dataset.redesignReady='1'
+  const label=NAV_LABELS[i]||b.textContent.trim()
+  b.textContent=label
+  b.dataset.redesignReady='1'
+  let img=b.querySelector('img[data-redesign-icon]')
+  if(!img){img=document.createElement('img');img.dataset.redesignIcon='1';img.alt='';img.setAttribute('aria-hidden','true');b.prepend(img)}
+  img.src=`/icons/${NAV_ICONS[i]||'home'}.svg`
  })
 }
 
