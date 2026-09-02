@@ -12,7 +12,6 @@ async function prepareVisualSession(page) {
     const request = route.request()
     let body = {}
     try { body = request.postDataJSON() || {} } catch {}
-
     if (body.action === 'session') {
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: { id: 'visual-test', username: 'visual-test' } }) })
     }
@@ -49,18 +48,13 @@ async function captureAllTabs(page, testInfo, suffix) {
   await page.goto('/')
   await expect(page).toHaveTitle(/Hradník/i)
   await expect(page.locator('#app')).toBeVisible()
-
   const nav = page.locator('.redesign-nav button')
   await expect(nav).toHaveCount(6)
-
   for (let i = 0; i < tabs.length; i++) {
     await nav.nth(i).click()
     await page.waitForTimeout(i === 0 ? 900 : 350)
     await expect(page.locator('#app')).toBeVisible()
-    await page.screenshot({
-      path: testInfo.outputPath(`${suffix}-${String(i + 1).padStart(2, '0')}-${tabs[i].toLowerCase().replace(/[^a-z0-9]+/g, '-')}.png`),
-      fullPage: true
-    })
+    await page.screenshot({ path: testInfo.outputPath(`${suffix}-${String(i + 1).padStart(2, '0')}-${tabs[i].toLowerCase().replace(/[^a-z0-9]+/g, '-')}.png`), fullPage: true })
   }
 }
 
@@ -68,7 +62,6 @@ test.describe('Hradník visual smoke tests', () => {
   test('desktop captures every tab', async ({ page }, testInfo) => {
     await captureAllTabs(page, testInfo, 'hradnik-desktop')
   })
-
   test('iPhone captures every tab', async ({ page }, testInfo) => {
     await captureAllTabs(page, testInfo, 'hradnik-iphone')
   })
@@ -82,8 +75,8 @@ test.describe('Hradník auth and interaction smoke tests', () => {
     await expect(page).toHaveTitle(/Hradník/i)
     await expect(page.locator('#app')).toBeVisible()
     await expect(page.locator('.auth')).toBeVisible()
-    await expect(page.locator('.auth button')).toHaveCountGreaterThan(0)
-    await expect(page.locator('.auth button:visible')).toHaveCountGreaterThan(0)
+    expect(await page.locator('.auth button').count()).toBeGreaterThan(0)
+    expect(await page.locator('.auth button:visible').count()).toBeGreaterThan(0)
     await page.screenshot({ path: testInfo.outputPath('hradnik-auth-logged-out.png'), fullPage: true })
     expect(errors).toEqual([])
   })
@@ -92,33 +85,28 @@ test.describe('Hradník auth and interaction smoke tests', () => {
     await prepareVisualSession(page)
     const errors = await assertNoPageErrors(page)
     await page.goto('/')
-    await expect(page.locator('.redesign-nav button')).toHaveCount(6)
-
     const nav = page.locator('.redesign-nav button')
+    await expect(nav).toHaveCount(6)
     for (let i = 0; i < 6; i++) {
       await nav.nth(i).click()
       await expect(page.locator('#app')).toBeVisible()
     }
-
     await nav.nth(1).click()
     await expect(page.locator('#content h1')).toHaveText('Historická místa')
     await page.locator('#search').fill('hrad')
     await expect(page.locator('#list')).toBeVisible()
     await page.locator('#preservation').selectOption('all')
     await expect(page.locator('#list')).toBeVisible()
-
     await nav.nth(2).click()
     await page.locator('#mw').click()
     await page.locator('#mv').click()
     await page.locator('#mf').click()
     await expect(page.locator('#mineList')).toBeVisible()
-
     await nav.nth(0).click()
     await expect(page.locator('#map')).toBeVisible()
     await page.locator('#mapPreservation').selectOption('all')
     await page.locator('#mapState').selectOption('none')
     await expect(page.locator('#map')).toBeVisible()
-
     expect(errors).toEqual([])
   })
 })
