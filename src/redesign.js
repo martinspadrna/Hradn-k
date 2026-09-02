@@ -28,11 +28,14 @@ function buildSidebar(app,nav){
  nav.classList.add('redesign-nav')
  nav.querySelectorAll('button').forEach((b,i)=>{
   const label=NAV_LABELS[i]||b.textContent.trim()
-  b.textContent=label
+  b.textContent=''
   b.dataset.redesignReady='1'
   let img=b.querySelector('img[data-redesign-icon]')
-  if(!img){img=document.createElement('img');img.dataset.redesignIcon='1';img.alt='';img.setAttribute('aria-hidden','true');b.prepend(img)}
+  if(!img){img=document.createElement('img');img.dataset.redesignIcon='1';img.alt='';img.setAttribute('aria-hidden','true');b.appendChild(img)}
   img.src=`/icons/${NAV_ICONS[i]||'home'}.svg`
+  let text=b.querySelector('span[data-redesign-label]')
+  if(!text){text=document.createElement('span');text.dataset.redesignLabel='1';b.appendChild(text)}
+  text.textContent=label
  })
 }
 
