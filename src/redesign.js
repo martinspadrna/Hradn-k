@@ -27,7 +27,7 @@ function buildSidebar(app,nav){
  const footer=side.querySelector('.redesign-side-footer');if(nav.parentElement!==side)side.insertBefore(nav,footer||null)
  nav.classList.add('redesign-nav')
  nav.querySelectorAll('button').forEach((b,i)=>{
-  const label=NAV_LABELS[i]||b.textContent.trim()
+  const label=NAV_LABELS[i]||b.textContent.trim().replace(/^[^\p{L}]*/u,'')
   b.textContent=''
   b.dataset.redesignReady='1'
   let img=b.querySelector('img[data-redesign-icon]')
@@ -40,6 +40,13 @@ function buildSidebar(app,nav){
 }
 
 function beautifyPlaces(){document.querySelectorAll('.placeIcon').forEach(node=>{if(node.dataset.redesigned==='1')return;const kind=node.parentElement?.querySelector('.placeCopy small')?.textContent?.split('·')[0]?.trim()||'';node.textContent='';const img=document.createElement('img');img.src=iconForKind(kind);img.alt='';node.appendChild(img);node.dataset.redesigned='1'})}
+
+function cleanHomeLabels(){
+ const title=document.querySelector('#content .sectionTitle h2')
+ if(title && /Chceme navštívit/.test(title.textContent))title.textContent='Chceme navštívit'
+ const all=document.querySelector('#allMine')
+ if(all)all.textContent='Zobrazit vše'
+}
 
 function enhanceMap(){
  const map=document.querySelector('#map');if(!map)return
@@ -55,7 +62,7 @@ function polishPage(){
  const main=document.querySelector('main.wrap');if(!main)return
  main.classList.add('redesign-main')
  const title=document.querySelector('#content h1');if(title)title.classList.add('redesign-title')
- beautifyPlaces();enhanceMap()
+ beautifyPlaces();cleanHomeLabels();enhanceMap()
 }
 
 function apply(){
