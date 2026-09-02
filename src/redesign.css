@@ -1,7 +1,6 @@
 :root{--r-bg:#070a0c;--r-panel:#0c1114;--r-panel2:#10171b;--r-card:#0e1519;--r-line:#273239;--r-gold:#d8aa31;--r-gold2:#f2c84d;--r-text:#f5f2e9;--r-muted:#919895;--r-green:#79a66a;--r-blue:#6d91b5;--r-shadow:0 14px 42px rgba(0,0,0,.34)}
 html,body,#app{background:var(--r-bg)!important;color:var(--r-text)!important}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 #app{min-height:100dvh}
-/* Desktop chrome — faithful to the approved dark/gold layout */
 @media(min-width:851px){
  body{overflow-x:hidden}
  header{position:fixed!important;left:220px;right:0;top:0;z-index:910;background:rgba(7,10,12,.94)!important;border-bottom:1px solid #20292e!important;border-radius:0!important;padding:14px 0!important;backdrop-filter:blur(16px);box-shadow:0 8px 24px rgba(0,0,0,.26)!important}
@@ -23,7 +22,7 @@ html,body,#app{background:var(--r-bg)!important;color:var(--r-text)!important}bo
  .globalSearch{flex:1;max-width:660px;height:42px;padding:0 14px 0 44px;border:1px solid #29343a;border-radius:11px;background:#0c1215;color:#f2efe7;outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
  .globalSearch:focus{border-color:#625022;box-shadow:0 0 0 3px rgba(216,170,49,.11)}
  .globalSearchWrap{position:relative;display:flex;align-items:center;flex:1}
- .globalSearchWrap:before{content:"";position:absolute;left:15px;width:17px;height:17px;background:url('/public/icons/search.svg') center/contain no-repeat;filter:brightness(1.15)}
+ .globalSearchWrap:before{content:"";position:absolute;left:15px;width:17px;height:17px;background:url('/icons/search.svg') center/contain no-repeat;filter:brightness(1.15)}
  header .account{margin-left:auto;display:flex;align-items:center;gap:8px}
  header .account b{font-size:12px;color:#d8d4c8}
  header .account button{height:40px!important;background:#10171b!important;color:#ece8dc!important;border:1px solid #29343a!important;border-radius:11px!important}
@@ -48,16 +47,13 @@ html,body,#app{background:var(--r-bg)!important;color:var(--r-text)!important}bo
  .card{background:#0d1418!important;border-color:#273239!important;box-shadow:0 10px 28px rgba(0,0,0,.2)!important}
  #map{box-shadow:0 16px 42px rgba(0,0,0,.36)!important;border:1px solid #2a353b!important}
 }
-/* Map composition */
 .map-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px;align-items:stretch;margin-top:8px}
 .map-layout #map{margin:0;min-height:650px;height:680px!important}
 .map-focus-card{background:linear-gradient(180deg,#10171b,#0b1114);border:1px solid #273239;border-radius:15px;padding:16px;display:flex;flex-direction:column;box-shadow:var(--r-shadow);min-height:0}
 .map-focus-card .focus-placeholder{border:1px dashed #354148;border-radius:13px;padding:22px 16px;color:#8d9693;text-align:center;line-height:1.55;margin:auto 0}
 .map-focus-card h3{margin:0 0 6px;font-size:18px}.map-focus-card p{margin:0;color:#8e9694;font-size:12px}
 .map-focus-brand{display:flex;align-items:center;gap:9px;margin-bottom:16px}.map-focus-brand img{width:30px;height:30px}.map-focus-brand b{font-size:13px;color:var(--r-gold2)}
-/* Desktop map filters sit above a clean map stage */
-@media(min-width:851px){.mapFilters{padding-top:2px!important;gap:10px!important}.mapLegend{background:#d9dadb;color:#747676;border-radius:10px;padding:8px 12px;margin:6px 0 10px!important}.mapLegend span{white-space:nowrap}.map-layout{grid-template-columns:minmax(0,1fr) 320px}.map-focus-card{position:relative}.map-focus-card .focus-placeholder:before{content:"🏰";display:block;font-size:34px;margin-bottom:8px;filter:saturate(.55)} }
-/* Mobile */
+@media(min-width:851px){.mapFilters{padding-top:2px!important;gap:10px!important}.mapLegend{background:#171d20;color:#aeb3ae;border:1px solid #2d373c;border-radius:10px;padding:8px 12px;margin:6px 0 10px!important}.mapLegend span{white-space:nowrap}.map-focus-card{position:relative}.map-focus-card .focus-placeholder:before{content:"";display:block;width:44px;height:44px;margin:0 auto 10px;background:url('/icons/home.svg') center/contain no-repeat;opacity:.9}}
 @media(max-width:850px){
  header{position:sticky!important;top:0;z-index:950;background:rgba(7,10,12,.96)!important;border-bottom:1px solid #20292e!important;border-radius:0!important;padding:10px 0!important;backdrop-filter:blur(16px)}
  header .top{width:calc(100% - 18px)!important;margin:0 auto!important;min-height:46px}
