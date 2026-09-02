@@ -6,26 +6,26 @@ function setupReferenceMode(){
   const nav=app.querySelector('#nav');
   const buttons=[...nav.querySelectorAll('button')];
   if(buttons.length<6) return;
-  const map=buttons[2],list=buttons[1],mine=buttons[3],diary=buttons[4],stats=buttons[5],home=buttons[0];
-  const ordered=[map,list,mine,diary,stats,home];
+  const ordered=[buttons[2],buttons[1],buttons[3],buttons[4],buttons[5],buttons[0]];
   const labels=['Mapa','Seznam','Oblíbené','Vyhledávání','Kategorie','O aplikaci'];
   const icons=['map','list','favorites','search','grid','info'];
-  ordered.forEach((b,i)=>{
-    b.dataset.referenceIndex=String(i);
-    b.textContent=labels[i];
-    b.setAttribute('aria-label',labels[i]);
-    let img=b.querySelector('img[data-reference-icon]');
-    if(!img){img=document.createElement('img');img.dataset.referenceIcon='1';img.alt='';img.setAttribute('aria-hidden','true');b.prepend(img)}
-    img.src=`/icons/${icons[i]}.svg`;
-    nav.appendChild(b);
-  });
-  if(!booted){
-    booted=true;
-    setTimeout(()=>{if(!app.querySelector('#map')) map.click()},60);
+  if(nav.dataset.referenceReady!=='1'){
+    ordered.forEach((b,i)=>{
+      b.textContent=labels[i];
+      b.setAttribute('aria-label',labels[i]);
+      let img=b.querySelector('img[data-reference-icon]');
+      if(!img){img=document.createElement('img');img.dataset.referenceIcon='1';img.alt='';img.setAttribute('aria-hidden','true');b.prepend(img)}
+      img.src=`/icons/${icons[i]}.svg`;
+      nav.appendChild(b);
+    });
+    nav.dataset.referenceReady='1';
   }
   const active=ordered.find(b=>b.classList.contains('active'));
-  ordered.forEach(b=>b.classList.remove('reference-active'));
-  if(active) active.classList.add('reference-active');
+  ordered.forEach(b=>b.classList.toggle('reference-active',b===active));
+  if(!booted){
+    booted=true;
+    setTimeout(()=>{if(!document.querySelector('#map')) ordered[0].click()},80);
+  }
 }
 const observer=new MutationObserver(()=>queueMicrotask(setupReferenceMode));
 const start=()=>{const app=document.querySelector('#app');if(app){observer.observe(app,{childList:true,subtree:true});setupReferenceMode()}};
