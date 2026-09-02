@@ -1,0 +1,109 @@
+/* Hradník — unified reference styling for every application view.
+   The reference home is the visual source of truth; this layer extends the same
+   shell, surfaces, typography, controls and spacing to catalog/map/my/diary/stats. */
+:root{
+  --hr-bg:#05080a;--hr-panel:#0d1418;--hr-panel2:#10171b;--hr-panel3:#141b1f;
+  --hr-line:#273239;--hr-line2:#20282c;--hr-text:#f0eee8;--hr-muted:#909894;
+  --hr-gold:#f0c64b;--hr-gold2:#d8aa31;--hr-gold-bg:#302719;--hr-blue:#3e80ef;
+}
+html,body,#app{background:var(--hr-bg)!important;color:var(--hr-text)!important}
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+main.redesign-main{color:var(--hr-text)!important}
+.redesign-main h1,.redesign-main h2,.redesign-main h3{color:var(--hr-text)!important;letter-spacing:-.02em}
+.redesign-main h1{font-size:28px!important;line-height:1.12!important;margin:0 0 14px!important}
+.redesign-main .eyebrow{color:var(--hr-gold2)!important;font-size:10px!important;letter-spacing:.13em!important;font-weight:900!important}
+.redesign-main .muted{color:var(--hr-muted)!important}
+
+/* Shared page frame */
+.redesign-main #content>section{background:transparent!important}
+.redesign-main #content>section:not(.hero){max-width:100%!important}
+.redesign-main .sectionTitle{align-items:center!important;margin:0 0 10px!important;min-height:48px!important}
+.redesign-main .sectionTitle h1,.redesign-main .sectionTitle h2{margin:0!important}
+.redesign-main .pill{background:#302719!important;border:1px solid #5a471c!important;color:var(--hr-gold)!important;border-radius:9px!important;padding:7px 10px!important;font-size:11px!important}
+
+/* Inputs / selects / chips */
+.redesign-main .search,.redesign-main input,.redesign-main select,.redesign-main textarea{
+  background:var(--hr-panel3)!important;color:var(--hr-text)!important;border:1px solid var(--hr-line)!important;
+  border-radius:9px!important;box-shadow:none!important;outline:none!important
+}
+.redesign-main .search{height:44px!important;padding:0 14px!important}
+.redesign-main .search::placeholder{color:#707976!important}
+.redesign-main select{min-height:40px!important;padding:8px 11px!important}
+.redesign-main .search:focus,.redesign-main input:focus,.redesign-main select:focus,.redesign-main textarea:focus{border-color:#675522!important;box-shadow:0 0 0 2px #d8aa3114!important}
+.redesign-main .chips{gap:6px!important;padding:4px 0 11px!important}
+.redesign-main .chips button{height:36px!important;padding:0 12px!important;border-radius:8px!important;background:#11191d!important;border:1px solid #29353b!important;color:#aeb4b1!important;font-size:11px!important;font-weight:850!important;box-shadow:none!important}
+.redesign-main .chips button:hover{transform:none!important;background:#182126!important;filter:none!important}
+.redesign-main .chips button.active{background:var(--hr-gold-bg)!important;border-color:#5a471c!important;color:var(--hr-gold)!important}
+.redesign-main .filterLine{margin:2px 0 12px!important}
+.redesign-main .filterLine .muted,.redesign-main .filterLabel{color:#777f7c!important;font-size:11px!important}
+
+/* Lists/cards — same surface language as home */
+.redesign-main .list{gap:7px!important}
+.redesign-main .place{min-height:78px!important;background:var(--hr-panel)!important;border:1px solid var(--hr-line)!important;border-radius:10px!important;padding:5px 7px 5px 10px!important;box-shadow:none!important}
+.redesign-main .place:hover{transform:none!important;border-color:#354149!important;background:#10181c!important}
+.redesign-main .placeMain{background:transparent!important;color:var(--hr-text)!important}
+.redesign-main .placeIcon{width:38px!important;height:38px!important;flex:0 0 38px!important;border-radius:9px!important;background:#11191d!important;border:1px solid #29353b!important;display:grid!important;place-items:center!important;font-size:0!important}
+.redesign-main .placeIcon img{width:26px!important;height:26px!important}
+.redesign-main .placeCopy b{font-size:14px!important;color:#f3f0e8!important}
+.redesign-main .placeCopy small{font-size:11px!important;color:#8f9794!important}
+.redesign-main .quick button{width:34px!important;height:34px!important;padding:0!important;border-radius:8px!important;background:#11191d!important;border:1px solid #29353b!important}
+.redesign-main .empty{min-height:92px!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:20px!important;background:#0c1215!important;border:1px dashed #29353b!important;border-radius:13px!important;color:#858d89!important}
+.redesign-main .card{background:var(--hr-panel)!important;border:1px solid var(--hr-line)!important;border-radius:12px!important;box-shadow:none!important;padding:15px!important}
+.redesign-main .row{padding:12px 4px!important;border-bottom:1px solid var(--hr-line2)!important;color:#d5d8d5!important}
+.redesign-main .row:last-child{border-bottom:0!important}
+
+/* Catalog */
+.redesign-main #typeChips{margin-top:7px!important}
+.redesign-main #catalogType{}
+.redesign-main #count{margin-left:auto!important}
+
+/* My / diary */
+.redesign-main #mineList,.redesign-main #diaryList{margin-top:8px!important}
+.redesign-main section>h1 + .chips{margin-top:4px!important}
+
+/* Statistics */
+.redesign-main .stats.big{gap:8px!important;margin:8px 0 12px!important}
+.redesign-main .stats.big>div{min-height:82px!important;background:var(--hr-panel)!important;border:1px solid var(--hr-line)!important;border-radius:10px!important;padding:13px!important;box-shadow:none!important}
+.redesign-main .stats.big b{font-size:25px!important;color:var(--hr-gold)!important}
+.redesign-main .stats.big span{font-size:11px!important;color:#858d89!important}
+
+/* Map */
+.redesign-main .mapFilters{gap:8px!important;padding:8px 0!important}
+.redesign-main .mapFilters>div{min-width:0!important}
+.redesign-main .mapLegend{gap:8px!important;margin:5px 0 9px!important;color:#858d89!important}
+.redesign-main #map{border:1px solid var(--hr-line)!important;border-radius:12px!important;box-shadow:none!important;background:#0b1012!important}
+.redesign-main .map-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 250px!important;gap:9px!important;align-items:stretch!important}
+.redesign-main .map-layout #map{min-width:0!important}
+.redesign-main .map-focus-card{background:var(--hr-panel)!important;border:1px solid var(--hr-line)!important;border-radius:12px!important;padding:15px!important;color:#858d89!important;display:flex!important;align-items:flex-start!important}
+.redesign-main .map-focus-card strong{color:#ddd9d0!important;font-size:13px!important}
+
+/* Detail sheet follows the same dark shell */
+.redesign-main + .overlay,.overlay{background:rgba(2,5,6,.78)!important;backdrop-filter:blur(3px)!important}
+.overlay .sheet{background:#0b1114!important;color:var(--hr-text)!important;border:1px solid var(--hr-line)!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;padding:18px!important;box-shadow:0 -18px 50px rgba(0,0,0,.45)!important}
+.overlay .sheet h1{color:#f3f0e8!important;font-size:28px!important}
+.overlay .sheet .bigIcon{background:linear-gradient(135deg,#151c20,#0d1316)!important;border:1px solid var(--hr-line)!important;border-radius:12px!important;height:170px!important}
+.overlay .sheet .actions button{background:#11191d!important;border:1px solid #29353b!important;color:#ddd9d0!important;border-radius:9px!important}
+.overlay .sheet .actions button.primary{background:#3a2e16!important;border-color:#69531e!important;color:var(--hr-gold)!important}
+.overlay .sheet textarea,.overlay .sheet input[type=date]{background:#11191d!important;color:#eee!important;border-color:#29353b!important}
+.overlay .close{background:#11191d!important;color:#c5c9c6!important;border:1px solid #29353b!important}
+
+@media(max-width:850px){
+  main.redesign-main{margin:0 0 66px!important}
+  .redesign-main h1{font-size:25px!important}
+  .redesign-main .sectionTitle{min-height:44px!important}
+  .redesign-main .map-layout{grid-template-columns:1fr!important}
+  .redesign-main .map-focus-card{display:none!important}
+  .redesign-main #map{height:500px!important;border-radius:12px!important}
+  .redesign-main .mapFilters{grid-template-columns:1fr!important}
+  .redesign-main .mapFilters>div:first-child{grid-column:auto!important}
+  .redesign-main .stats.big{grid-template-columns:repeat(2,1fr)!important}
+  .redesign-main .place{min-height:76px!important}
+}
+@media(max-width:520px){
+  .redesign-main h1{font-size:23px!important}
+  .redesign-main .chips{overflow-x:auto!important}
+  .redesign-main .chips button{flex:0 0 auto!important}
+  .redesign-main .stats.big>div{min-height:76px!important}
+  .redesign-main #map{height:450px!important}
+  .overlay .sheet{padding:14px!important;border-radius:16px 16px 0 0!important}
+}
