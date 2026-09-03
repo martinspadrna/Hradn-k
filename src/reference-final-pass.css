@@ -10,44 +10,34 @@ html,body,#app{background:var(--hf-bg)!important;color:var(--hf-text)!important}
   .globalSearch{height:42px!important;border-radius:7px!important;font-size:13px!important}
   #content>section{max-width:1200px!important}
 }
-
-/* All non-home views get the same visual hierarchy as the reference home. */
 .redesign-main #content>section:not(.hero){padding-top:2px!important}
-.redesign-main #content>section:not(.hero)>h1:first-child,
-.redesign-main #content>section:not(.hero)>.sectionTitle h1{font-family:Georgia,"Times New Roman",serif!important;font-weight:700!important;color:#f1eee5!important}
+.redesign-main #content>section:not(.hero)>h1:first-child,.redesign-main #content>section:not(.hero)>.sectionTitle h1{font-family:Georgia,"Times New Roman",serif!important;font-weight:700!important;color:#f1eee5!important}
 .redesign-main #content>section:not(.hero)>h1:first-child:after{content:"";display:block;width:42px;height:2px;margin-top:9px;background:var(--hf-gold);opacity:.75}
-
-/* Catalog / search */
 #search{max-width:720px!important}
 #list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
 #list .place{height:100%!important}
 @media(max-width:850px){#list{grid-template-columns:1fr!important}}
-
-/* My places: segmented controls and cards */
 #mineList{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
 @media(max-width:650px){#mineList{grid-template-columns:1fr!important}}
-
-/* Diary */
 #diaryList{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
 @media(max-width:650px){#diaryList{grid-template-columns:1fr!important}}
-
-/* Stats: make the overview feel like the home stats strip. */
 .redesign-main .stats.big>div{position:relative;overflow:hidden}
 .redesign-main .stats.big>div:after{content:"";position:absolute;right:-18px;bottom:-22px;width:70px;height:70px;border:1px solid #3d321a;border-radius:50%;opacity:.45}
-
-/* Shared reference-style action buttons */
 .redesign-main button{font-family:inherit}
 .redesign-main .sectionTitle .linkish{color:#171a1c!important;background:#edf0f2!important;border:1px solid #d5dadd!important;border-radius:9px!important}
 .redesign-main .primary,.redesign-main button.primary{background:#3b2e14!important;border-color:#6b531c!important;color:var(--hf-gold)!important}
-
-/* Detail keeps the same card treatment instead of looking like a separate app. */
 .overlay .sheet{max-width:860px!important}
 .overlay .sheet .meta,.overlay .sheet .description,.overlay .sheet .notes{color:#b1b6b2!important}
-
-/* Map controls use the same compact reference controls. */
 .redesign-main .mapFilters select{height:40px!important;border-radius:8px!important}
 .redesign-main .mapLegend{font-size:11px!important}
-
+.redesign-main .placeIcon img{display:block;width:26px;height:26px;object-fit:contain}
+.redesign-main .favoriteMark,.redesign-main .favoriteDot{color:var(--hf-gold)!important}
+.redesign-main .stateDot,.redesign-main .quickDot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:1px;margin-right:5px;background:#7d8582}
+.redesign-main .stateDot.want,.redesign-main .quickDot.want{background:#3e80ef}
+.redesign-main .stateDot.visited,.redesign-main .quickDot.visited{background:#25a66d}
+.redesign-main .quickDot{width:10px;height:10px;margin:0}
+.redesign-main .statsKind{display:inline-flex;align-items:center;gap:7px}
+.redesign-main .statsKind img{width:20px;height:20px;object-fit:contain}
 @media(max-width:850px){
   main.redesign-main{margin-bottom:78px!important}
   .redesign-main #content>section:not(.hero)>h1:first-child{margin-top:4px!important}
