@@ -1,10 +1,9 @@
-/* Mobile uses the existing left hamburger. The redesign account-menu trigger must not create a second hamburger. */
+/* Mobile uses the existing left hamburger. It opens the same drawer as the former top trigger. */
 const bindMobileMenuFix=()=>{
   const mobile=document.querySelector('.mobileHeaderMenu')
   const account=document.querySelector('.redesign-menu-trigger')
   if(!mobile||!account||mobile.dataset.menuFixBound)return
   mobile.dataset.menuFixBound='1'
-  account.style.display='none'
   mobile.addEventListener('click',e=>{
     e.preventDefault()
     e.stopImmediatePropagation()
