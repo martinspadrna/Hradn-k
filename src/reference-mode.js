@@ -1,15 +1,7 @@
 import L from 'leaflet'
 
-/* Hradník reference mode: map-first UI, satellite map and shield markers. */
+/* Hradník reference mode: map-first UI, dark standard map and shield markers. */
 const SHIELD='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHBhdGggZD0iTTMyIDMgNTYgMTB2MjBjMCAxNC0xMCAyNC0yNCAzMUMxOCA1NCA4IDQ0IDggMzBWMTBMMzIgM1oiIGZpbGw9IiMwYjBmMGYiIHN0cm9rZT0iI2U1YjczYiIgc3Ryb2tlLXdpZHRoPSIzIi8+PHBhdGggZD0iTTE4IDQyVjI0aDZ2LThoN3Y4aDR2LThoN3Y4aDZ2MThIMThabTctNWgxNHYtN0gyNXY3WiIgZmlsbD0iI2U1YjczYiIvPjwvc3ZnPg=='
-
-const originalTileLayer=L.tileLayer.bind(L)
-L.tileLayer=function(url,options={}){
-  if(String(url).includes('openstreetmap.org')){
-    return originalTileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{...options,attribution:'© Esri, Maxar, Earthstar Geographics'})
-  }
-  return originalTileLayer(url,options)
-}
 
 const originalCircle=L.circleMarker.bind(L)
 L.circleMarker=function(latlng,options={}){
