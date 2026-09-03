@@ -1,0 +1,26 @@
+/* Account drawer: use the same restrained gold line language as the rest of the app. */
+.redesign-drawer-panel{background:#101318;border-right:1px solid rgba(228,173,25,.28)}
+.redesign-drawer-head{padding:12px 8px 24px;border-bottom:1px solid rgba(228,173,25,.20)}
+.redesign-drawer-brand{display:flex;align-items:center;min-width:0}
+.redesign-drawer-brand img{display:block;width:180px;height:auto;max-width:68vw}
+.redesign-drawer-close{width:42px;height:42px;border:1px solid rgba(228,173,25,.32);border-radius:12px;background:rgba(255,255,255,.025);color:#e4ad19;font-size:32px;line-height:1;padding:0;display:grid;place-items:center}
+.redesign-menu-user{display:flex;align-items:center;gap:14px;padding:22px 8px 20px}
+.redesign-user-icon{width:52px;height:52px;flex:0 0 52px;border:1px solid rgba(228,173,25,.45);border-radius:50%;display:grid;place-items:center;background:rgba(228,173,25,.035)}
+.redesign-user-icon img{width:29px;height:29px}
+.redesign-user-copy{min-width:0}
+.redesign-menu-user b{font-size:20px;color:#f2f2f2}
+.redesign-menu-user small{font-size:14px;color:#858b96;margin-top:4px}
+.redesign-menu-item{gap:16px;padding:12px 8px;margin:4px 0;border-radius:14px}
+.redesign-menu-icon{width:50px;height:50px;flex:0 0 50px;border:1px solid rgba(228,173,25,.32);border-radius:12px;background:rgba(255,255,255,.018);display:grid;place-items:center;font-size:0}
+.redesign-menu-icon img{width:29px;height:29px;display:block}
+.redesign-menu-label{font-size:18px}
+.redesign-menu-chevron{font-size:27px;color:#c3921b;line-height:1}
+.redesign-menu-divider{background:rgba(255,255,255,.09);margin:12px 8px}
+.redesign-menu-danger{color:#ef7777}
+.redesign-menu-danger .redesign-menu-icon{border-color:rgba(239,119,119,.28)}
+@media(max-width:700px){
+ .redesign-drawer-panel{width:min(360px,91vw);padding:22px 18px 34px}
+ .redesign-drawer-brand img{width:170px}
+ .redesign-menu-item{padding:11px 7px}
+ .redesign-menu-icon{width:48px;height:48px;flex-basis:48px}
+}
