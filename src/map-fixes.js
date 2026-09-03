@@ -1,7 +1,7 @@
 import L from 'leaflet'
 
 const style = document.createElement('style')
-style.textContent = `.overlay{z-index:10000!important}.overlay .sheet{z-index:10001!important}.hradnik-map-toggle{display:flex;background:#10151a;border:1px solid rgba(255,255,255,.12);border-radius:10px;overflow:hidden;box-shadow:0 2px 12px #0008}.hradnik-map-toggle button{border:0;border-radius:0;padding:9px 11px;min-width:82px;background:#10151a;color:#9aa0a8;font-weight:800;font-size:12px;cursor:pointer}.hradnik-map-toggle button+button{border-left:1px solid rgba(255,255,255,.08)}.hradnik-map-toggle button.active{background:#181b20;color:#e4ad19;box-shadow:inset 0 -2px 0 #e4ad19}.hradnik-dark-tiles img{filter:brightness(.58) contrast(1.18) saturate(.72)}@media(max-width:520px){.hradnik-map-toggle button{min-width:74px;padding:10px 8px;font-size:11px}.leaflet-control-zoom a{width:40px!important;height:40px!important;line-height:40px!important}}`
+style.textContent = `.overlay{z-index:10000!important}.overlay .sheet{z-index:10001!important}.hradnik-map-toggle{display:flex;background:#10151a;border:1px solid rgba(255,255,255,.12);border-radius:10px;overflow:hidden;box-shadow:0 2px 12px #0008}.hradnik-map-toggle button{border:0;border-radius:0;padding:9px 11px;min-width:82px;background:#10151a;color:#9aa0a8;font-weight:800;font-size:12px;cursor:pointer}.hradnik-map-toggle button+button{border-left:1px solid rgba(255,255,255,.08)}.hradnik-map-toggle button.active{background:#181b20;color:#e4ad19;box-shadow:inset 0 -2px 0 #e4ad19}.hradnik-map-toggle button .map-toggle-icon{display:inline-flex;vertical-align:-3px;margin-right:5px}.hradnik-map-toggle button .map-toggle-icon img{width:14px;height:14px;display:block}@media(max-width:520px){.hradnik-map-toggle button{min-width:74px;padding:10px 8px;font-size:11px}.leaflet-control-zoom a{width:40px!important;height:40px!important;line-height:40px!important}}`
 document.head.appendChild(style)
 
 const STANDARD_URL='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -23,7 +23,7 @@ function addStandard(map){
 
 function addDarkMapClass(map){
   const pane=map.getPane('tilePane')
-  if(pane) pane.classList.add('hradnik-dark-tiles')
+  if(pane)pane.classList.add('hradnik-dark-tiles')
 }
 
 function installToggle(){
@@ -38,7 +38,8 @@ function installToggle(){
       const standard=L.DomUtil.create('button','',wrap)
       const aerial=L.DomUtil.create('button','',wrap)
       standard.type='button';aerial.type='button'
-      standard.textContent='🗺️ Mapa';aerial.textContent='🛰️ Letecká'
+      standard.innerHTML='<span class="map-toggle-icon"><img src="/icons/map.svg" alt=""></span>Mapa'
+      aerial.innerHTML='<span class="map-toggle-icon"><img src="/icons/nav-map.svg" alt=""></span>Letecká'
       standard.classList.add('active')
 
       const normal=()=>{if(satellite._map)map.removeLayer(satellite);addStandard(map);addDarkMapClass(map);standard.classList.add('active');aerial.classList.remove('active')}
@@ -54,9 +55,7 @@ function installToggle(){
 
   setTimeout(()=>{
     if(!map._container?.isConnected)return
-    if(!tileLayers(map).some(layer=>layer._url?.includes('tile.openstreetmap.org'))){
-      addStandard(map)
-    }
+    if(!tileLayers(map).some(layer=>layer._url?.includes('tile.openstreetmap.org'))){addStandard(map)}
     addDarkMapClass(map)
   },0)
 }
