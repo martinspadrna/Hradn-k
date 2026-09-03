@@ -1,0 +1,23 @@
+/* Mobile: keep one hamburger on the left, using the same gold treatment as the former top trigger. */
+@media(max-width:850px){
+  .redesign-menu-trigger{display:none!important}
+  .mobileHeaderMenu{
+    width:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    border:1px solid rgba(228,173,25,.24)!important;
+    border-radius:12px!important;
+    background:rgba(255,255,255,.035)!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:5px!important;
+    padding:0!important;
+    margin:0!important;
+    cursor:pointer!important;
+    box-sizing:border-box!important;
+  }
+  .mobileHeaderMenu:hover,.mobileHeaderMenu:active{background:rgba(228,173,25,.10)!important;border-color:rgba(228,173,25,.5)!important}
+  .mobileHeaderMenu span{display:block!important;width:18px!important;height:2px!important;border-radius:2px!important;background:#e4ad19!important;margin:0!important}
+}
