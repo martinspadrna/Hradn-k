@@ -1,0 +1,23 @@
+@import url('/src/reference-true.css');
+/* Hradník — Moje + Deník: one coherent reference-style module pass. */
+.redesign-main #content>section{min-width:0}
+.redesign-main #content>section>h1{letter-spacing:-.01em}
+.redesign-main #mineList,.redesign-main #diaryList{margin-top:12px}
+.redesign-main #mineList .place,.redesign-main #diaryList .place{min-width:0}
+.redesign-main #mineList .placeMain,.redesign-main #diaryList .placeMain{width:100%;min-width:0;text-align:left}
+.redesign-main #mineList .placeCopy,.redesign-main #diaryList .placeCopy{min-width:0}
+.redesign-main #mineList .placeCopy b,.redesign-main #diaryList .placeCopy b{font-size:15px;line-height:1.25}
+.redesign-main #mineList .placeCopy small,.redesign-main #diaryList .placeCopy small{line-height:1.35}
+.redesign-main #mineList .quick,.redesign-main #diaryList .quick{flex:0 0 auto}
+.redesign-main #mineList+.empty,.redesign-main #diaryList+.empty{margin-top:12px}
+.redesign-main #content>section>.chips:first-of-type{margin:12px 0 14px}
+.redesign-main #content>section>.chips:first-of-type button{min-height:40px;font-weight:700}
+.redesign-main #content>section>.chips:first-of-type button.active{box-shadow:inset 0 -2px 0 #e4b437}
+.redesign-main .diaryMeta{display:flex;align-items:center;gap:8px;margin-top:5px;color:#899298;font-size:12px}
+.redesign-main .diaryRating{letter-spacing:.08em;color:#e4b437}
+.redesign-main .module-empty{padding:30px 18px;border:1px dashed #303a3f;border-radius:10px;background:#0c1215;color:#858d89;text-align:center}
+@media(max-width:650px){
+ .redesign-main #mineList,.redesign-main #diaryList{gap:7px!important}
+ .redesign-main #content>section>.chips:first-of-type{overflow:auto;flex-wrap:nowrap!important;padding-bottom:2px}
+ .redesign-main #content>section>.chips:first-of-type button{white-space:nowrap;min-height:42px}
+}
