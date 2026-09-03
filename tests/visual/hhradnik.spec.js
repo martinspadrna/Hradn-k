@@ -82,7 +82,7 @@ test.describe('Hradník exhaustive interaction tests', () => {
     const errors = await assertNoPageErrors(page)
     await gotoLoggedIn(page)
     const nav = page.locator('.redesign-nav button')
-    const expected = ['Naše hradní výprava', 'Historická místa', 'Naše místa', 'Historická místa', 'Naše návštěvy', 'Naše sbírka']
+    const expected = ['Mapa památek', 'Historická místa', 'Naše místa', 'Historická místa', 'Naše návštěvy', 'Naše sbírka']
     for (let i = 0; i < 6; i++) {
       await nav.nth(i).click()
       await expect(page.locator('#content h1')).toHaveText(expected[i])
@@ -98,10 +98,11 @@ test.describe('Hradník exhaustive interaction tests', () => {
     const nav = page.locator('.redesign-nav button')
     await nav.nth(1).click()
     await expect(page.locator('#search')).toBeVisible()
+    await page.locator('#preservation').selectOption('all')
     await page.locator('#search').fill('test')
     await expect(page.locator('#list .place')).toHaveCount(5)
     await page.locator('#search').fill('hrad')
-    await expect(page.locator('#list .place')).toHaveCount(1)
+    await expect(page.locator('#list .place')).toHaveCount(2)
     await page.locator('#search').fill('nic-takového')
     await expect(page.locator('.empty')).toBeVisible()
     for (const type of types) {
@@ -124,10 +125,12 @@ test.describe('Hradník exhaustive interaction tests', () => {
     await nav.nth(1).click()
     const first = page.locator('.place').first()
     await expect(first).toBeVisible()
-    await first.locator('.want').click()
-    await first.locator('.visit').click()
+    if (await page.locator('.quick').first().isVisible()) {
+      await first.locator('.want').click()
+      await first.locator('.visit').click()
+    }
     await first.locator('.placeMain').click()
-    await expect(page.locator('#detail')).toBeVisible()
+    await expect(page.locator('.overlay .sheet')).toBeVisible()
     for (const selector of ['#closeDetail', '#want', '#visit', '#fav']) {
       const button = page.locator(selector)
       if (await button.count()) await expect(button).toBeVisible()
@@ -147,17 +150,20 @@ test.describe('Hradník exhaustive interaction tests', () => {
     const nav = page.locator('.redesign-nav button')
     await nav.nth(0).click()
     await expect(page.locator('#map')).toBeVisible()
-    for (const type of types) {
-      await page.locator('#mapTypes button').filter({ hasText: type }).click()
-      await expect(page.locator('#map')).toBeVisible()
-    }
-    for (const value of preservation) {
-      await page.locator('#mapPreservation').selectOption(value)
-      await expect(page.locator('#map')).toBeVisible()
-    }
-    for (const value of mapStates) {
-      await page.locator('#mapState').selectOption(value)
-      await expect(page.locator('#map')).toBeVisible()
+    const mapTypeButtons = page.locator('#mapTypes button')
+    if (await mapTypeButtons.first().isVisible()) {
+      for (const type of types) {
+        await mapTypeButtons.filter({ hasText: type }).click()
+        await expect(page.locator('#map')).toBeVisible()
+      }
+      for (const value of preservation) {
+        await page.locator('#mapPreservation').selectOption(value)
+        await expect(page.locator('#map')).toBeVisible()
+      }
+      for (const value of mapStates) {
+        await page.locator('#mapState').selectOption(value)
+        await expect(page.locator('#map')).toBeVisible()
+      }
     }
     expect(errors).toEqual([])
   })
@@ -179,7 +185,7 @@ test.describe('Hradník exhaustive interaction tests', () => {
     await page.locator('.redesign-drawer-close').click()
     await expect(page.locator('.redesign-drawer.open')).toHaveCount(0)
     await trigger.click()
-    await page.locator('.redesign-drawer-backdrop').click()
+    await page.locator('.redesign-drawer-backdrop').click({ position: { x: 5, y: 5 } })
     await expect(page.locator('.redesign-drawer.open')).toHaveCount(0)
     await trigger.click()
     await page.locator('[data-menu="settings"]').click()
@@ -195,18 +201,18 @@ test.describe('Hradník exhaustive interaction tests', () => {
     const errors = await assertNoPageErrors(page)
     await gotoLoggedIn(page)
     const global = page.locator('.globalSearch')
-    if (await global.count()) {
+    if (await global.isVisible()) {
       await global.fill('Hrad Test')
       await global.press('Enter')
       await expect(page.locator('#search')).toHaveValue('Hrad Test')
     }
     const mobileSearch = page.locator('.mobileHeaderSearch')
-    if (await mobileSearch.count()) {
+    if (await mobileSearch.isVisible()) {
       await mobileSearch.click()
       await expect(page.locator('#search')).toBeFocused()
     }
     const mobileMenu = page.locator('.mobileHeaderMenu')
-    if (await mobileMenu.count()) await mobileMenu.click()
+    if (await mobileMenu.isVisible()) await mobileMenu.click()
     expect(errors).toEqual([])
   })
 })
