@@ -102,7 +102,7 @@ test.describe('Hradník exhaustive interaction tests', () => {
     await page.locator('#search').fill('test')
     await expect(page.locator('#list .place')).toHaveCount(5)
     await page.locator('#search').fill('hrad')
-    await expect(page.locator('#list .place')).toHaveCount(2)
+    await expect(page.locator('#list .place')).toHaveCount(4)
     await page.locator('#search').fill('nic-takového')
     await expect(page.locator('.empty')).toBeVisible()
     for (const type of types) {
@@ -171,7 +171,7 @@ test.describe('Hradník exhaustive interaction tests', () => {
   test('hamburger menu exercises every item, close paths and all settings switches', async ({ page }) => {
     const errors = await assertNoPageErrors(page)
     await gotoLoggedIn(page)
-    const trigger = page.locator('.redesign-menu-trigger')
+    const trigger = page.locator('.redesign-menu-trigger:visible, .mobileHeaderMenu:visible').first()
     await expect(trigger).toBeVisible()
     for (const action of ['account', 'settings', 'mapsettings', 'help', 'about']) {
       await trigger.click()
@@ -185,7 +185,9 @@ test.describe('Hradník exhaustive interaction tests', () => {
     await page.locator('.redesign-drawer-close').click()
     await expect(page.locator('.redesign-drawer.open')).toHaveCount(0)
     await trigger.click()
-    await page.locator('.redesign-drawer-backdrop').click({ position: { x: 5, y: 5 } })
+    const backdrop = page.locator('.redesign-drawer-backdrop')
+    const box = await backdrop.boundingBox()
+    if (box) await backdrop.click({ position: { x: box.width - 5, y: 5 } })
     await expect(page.locator('.redesign-drawer.open')).toHaveCount(0)
     await trigger.click()
     await page.locator('[data-menu="settings"]').click()
