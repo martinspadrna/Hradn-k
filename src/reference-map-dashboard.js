@@ -42,7 +42,7 @@ function renderRecent(){
   items.forEach(item=>{
     const button=document.createElement('button')
     button.type='button';button.className='reference-recent-card'
-    button.innerHTML=`<div class="reference-recent-visual"><img src="${iconFor(item.kind)}" alt=""></div><div class="reference-recent-copy"><b>${escapeHtml(item.name)}</b><span>${escapeHtml(item.kind||'Historické místo')}</span><small>${escapeHtml(item.location||'')}</small></div><img class="reference-recent-heart" src="/icons/favorites.svg" alt="">`
+    button.innerHTML=`<div class="reference-recent-visual"><span class="reference-recent-emblem"><img src="${iconFor(item.kind)}" alt=""></span></div><div class="reference-recent-copy"><b>${escapeHtml(item.name)}</b><span>${escapeHtml(item.kind||'Historické místo')}</span><small>${escapeHtml(item.location||'')}</small></div><img class="reference-recent-heart" src="/icons/favorites.svg" alt="">`
     button.onclick=()=>openBySearch(item.name)
     rail.appendChild(button)
   })
