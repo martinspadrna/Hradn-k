@@ -163,14 +163,15 @@ test('map, list detail and settings remain interactive', async ({ page }) => {
   await page.locator('.reference-settings-close').click()
 })
 
-test('map selects Karlštejn every time it is opened', async ({ page }) => {
+test('map never opens a monument detail on its own', async ({ page }) => {
   const nav = await openApp(page)
-  await expect(page.locator('.overlay .sheet h1')).toHaveText('Karlštejn', { timeout: 10_000 })
+  await expect(page.locator('.overlay')).toHaveCount(0)
 
   await nav.nth(1).click()
   await expect(page.locator('#list')).toBeVisible()
   await page.locator('.redesign-sidebar .redesign-nav > button').nth(0).click()
-  await expect(page.locator('.overlay .sheet h1')).toHaveText('Karlštejn', { timeout: 10_000 })
+  await expect(page.locator('#map')).toBeVisible()
+  await expect(page.locator('.overlay')).toHaveCount(0)
 })
 
 test('PWA update bridge is installed and guest mode still boots', async ({ page }) => {

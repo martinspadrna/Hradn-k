@@ -4,7 +4,7 @@
   "short_name":"Hradník",
   "description":"Katalog a deník hradů, zámků, zřícenin a tvrzí.",
   "lang":"cs",
-  "start_url":"/?v=14",
+  "start_url":"/?v=15",
   "display":"standalone",
   "background_color":"#070a0c",
   "theme_color":"#070a0c",
