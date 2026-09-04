@@ -51,18 +51,41 @@ async function waitDestination(page, index) {
   if (index === 5) await expect(page.locator('.reference-about-page')).toBeVisible()
 }
 
+async function closeMapDetailIfOpen(page) {
+  const close = page.locator('.overlay .close')
+  if (await close.isVisible().catch(() => false)) {
+    await close.click()
+    await expect(page.locator('.overlay')).toHaveCount(0)
+  }
+}
+
 test('captures all six reference destinations', async ({ page }, testInfo) => {
   const nav = await openApp(page)
   const labels = ['mapa','seznam','oblibene','vyhledavani','kategorie','o-aplikaci']
-  for (let i = 0; i < 6; i++) {
+
+  for (let i = 0; i < 5; i++) {
     await nav.nth(i).click()
     await waitDestination(page, i)
-    await page.waitForTimeout(i === 0 ? 700 : 220)
+    await page.waitForTimeout(i === 0 ? 900 : 220)
     await page.screenshot({
       path: testInfo.outputPath(`hradnik-${testInfo.project.name}-${String(i + 1).padStart(2, '0')}-${labels[i]}.png`),
       fullPage: true
     })
   }
+
+  if (testInfo.project.name === 'desktop') {
+    await nav.nth(5).click()
+  } else {
+    await page.locator('.mobileHeaderMenu').click()
+    await expect(page.locator('.reference-mobile-drawer')).toHaveClass(/open/)
+    await page.locator('[data-ref-mobile="about"]').click()
+  }
+  await waitDestination(page, 5)
+  await page.waitForTimeout(220)
+  await page.screenshot({
+    path: testInfo.outputPath(`hradnik-${testInfo.project.name}-06-${labels[5]}.png`),
+    fullPage: true
+  })
 })
 
 test('desktop/mobile shell matches the reference structure', async ({ page }) => {
@@ -83,6 +106,7 @@ test('desktop/mobile shell matches the reference structure', async ({ page }) =>
   } else {
     await expect(page.locator('.mobileHeaderMenu')).toBeVisible()
     await expect(page.locator('.mobileHeaderSearch')).toBeVisible()
+    await expect(nav.nth(5)).toBeHidden()
   }
 })
 
@@ -107,9 +131,15 @@ test('map, list detail and settings remain interactive', async ({ page }) => {
   let nav = await openApp(page)
   await nav.nth(0).click()
   await expect(page.locator('#map')).toBeVisible()
+  await page.waitForTimeout(500)
+  await closeMapDetailIfOpen(page)
+
   const mapTypes = page.locator('#mapTypes button')
   if (await mapTypes.count()) {
-    await mapTypes.filter({ hasText: 'Zřícenina' }).click()
+    await page.locator('.reference-filter-button').click()
+    const ruinFilter = mapTypes.filter({ hasText: 'Zřícenina' })
+    await expect(ruinFilter).toBeVisible()
+    await ruinFilter.click()
     await expect(page.locator('#map')).toBeVisible()
   }
 
