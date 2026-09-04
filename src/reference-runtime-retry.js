@@ -71,7 +71,12 @@ function route(index,nav=currentNav()){
   // The selected monument belongs to the map view. It must not sit above
   // another destination and intercept its controls after automatic startup.
   if(index!==0)document.querySelector('.overlay[data-hradnik-detail-context="map"]')?.remove()
-  if(index===0){callNative(bs[0],'map');return}
+  if(index===0){callNative(bs[0],'map');setTimeout(()=>{
+    const name=document.querySelector('.overlay[data-hradnik-detail-context="list"] .sheet h1')?.textContent?.trim()
+    const map=window.__hradnikMap
+    const layer=(map?._hradnikReferenceOriginals||[]).find(item=>item.getTooltip?.()?.getContent?.()===name)
+    if(layer?.getLatLng)map.setView(layer.getLatLng(),13,{animate:false})
+  },900);return}
   if(index===1){callNative(bs[1],'catalog');return}
   if(index===2){callNative(bs[2],'mine');setTimeout(()=>document.getElementById('mf')?.click(),120);return}
   if(index===3){callNative(bs[1],'catalog');setTimeout(()=>document.getElementById('search')?.focus(),120);return}

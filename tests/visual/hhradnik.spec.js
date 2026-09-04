@@ -22,6 +22,12 @@ async function mockBackend(page, loggedIn = true) {
     body: JSON.stringify(samplePlaces)
   }))
 
+  await page.route('**/functions/v1/hradnik-photo', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ url: '/hradnik-app-icon.svg' })
+  }))
+
   await page.route('**/functions/v1/hradnik-auth', route => {
     let body = {}
     try { body = route.request().postDataJSON() || {} } catch {}
@@ -172,6 +178,31 @@ test('map never opens a monument detail on its own', async ({ page }) => {
   await page.locator('.redesign-sidebar .redesign-nav > button').nth(0).click()
   await expect(page.locator('#map')).toBeVisible()
   await expect(page.locator('.overlay')).toHaveCount(0)
+})
+
+test('selected search result has a photo and carries its map focus', async ({ page }) => {
+  const nav = await openApp(page)
+  await nav.nth(3).click()
+  await page.locator('#search').fill('Hrad Test')
+  const result = page.locator('#list .place').first()
+  await expect(result.locator('.placePhoto')).toBeVisible()
+
+  await result.locator('.placeMain').click()
+  const detail = page.locator('.overlay[data-hradnik-detail-context="list"] .sheet')
+  await expect(detail).toBeVisible()
+  await expect(detail.locator('h1')).toHaveText('Hrad Test')
+  if (test.info().project.name === 'desktop') {
+    const box = await detail.boundingBox()
+    expect(box?.width).toBeGreaterThanOrEqual(410)
+    expect(box?.height).toBeGreaterThan(800)
+  }
+
+  await page.locator('.redesign-sidebar .redesign-nav > button').nth(0).click()
+  await expect(page.locator('#map')).toBeVisible()
+  await expect.poll(async () => page.evaluate(() => {
+    const center = window.__hradnikMap?.getCenter()
+    return center && Math.abs(center.lat - 50.54) < 0.002 && Math.abs(center.lng - 15.72) < 0.002
+  })).toBe(true)
 })
 
 test('PWA update bridge is installed and guest mode still boots', async ({ page }) => {

@@ -137,6 +137,36 @@ async function addDetailPhoto(sheet) {
   if (found && sheet.isConnected) renderPhoto(sheet, title, found)
 }
 
+function renderResultPhoto(card, title, hit) {
+  if (!hit || card.querySelector('.placePhoto')) return
+  const photo = document.createElement('img')
+  photo.className = 'placePhoto'
+  photo.src = hit.photo
+  photo.alt = `${title} – fotografie`
+  photo.loading = 'lazy'
+  photo.decoding = 'async'
+  photo.referrerPolicy = 'no-referrer'
+  photo.onerror = () => photo.remove()
+  card.querySelector('.placeMain')?.prepend(photo)
+}
+
+async function addResultPhoto(card) {
+  const title = card.querySelector('.placeCopy b')?.textContent?.replace('★', '').trim()
+  if (!title || card.querySelector('.placePhoto')) return
+  await loadPhotoRows()
+  const stored = photoCache.get(normalize(title))
+  if (stored) return renderResultPhoto(card, title, stored)
+  const found = await findPhoto(title)
+  if (found && card.isConnected) renderResultPhoto(card, title, found)
+}
+
+function hydrateResultPhotos() {
+  // A bounded lazy pass keeps a broad catalog view fast while giving searches
+  // and the visible first results the useful visual recognition users expect.
+  document.querySelectorAll('#list .place, #mineList .place, #diaryList .place')
+    .forEach((card, index) => { if (index < 16) void addResultPhoto(card) })
+}
+
 function haversineKm(aLat, aLon, bLat, bLon) {
   const R = 6371
   const toRad = x => x * Math.PI / 180
@@ -254,12 +284,14 @@ function escapeHtml(value = '') {
 const observer = new MutationObserver(() => {
   createNearbyUi()
   document.querySelectorAll('.sheet').forEach(sheet => { void addDetailPhoto(sheet) })
+  hydrateResultPhotos()
 })
 observer.observe(document.body, { childList: true, subtree: true })
 
 window.addEventListener('DOMContentLoaded', () => {
   void loadPhotoRows()
   createNearbyUi()
+  hydrateResultPhotos()
   setTimeout(createNearbyUi, 600)
   setTimeout(() => document.querySelectorAll('.sheet').forEach(sheet => { void addDetailPhoto(sheet) }), 800)
 })
