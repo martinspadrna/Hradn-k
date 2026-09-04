@@ -31,7 +31,7 @@ Deno.serve(async(req)=>{
    const username=norm(body.username||''),password=body.password||'';const {data:user}=await db.from('hradnik_users').select('id,username,password_hash,display_name').eq('username',username).maybeSingle();if(!user||!(await verifyPassword(password,user.password_hash)))return json({error:'Neplatné uživatelské jméno nebo heslo.'},401);await db.from('hradnik_users').update({last_login_at:new Date().toISOString()}).eq('id',user.id);return json({ok:true,user:{id:user.id,username:user.username,display_name:user.display_name},session:await createSession(user.id)})
   }
   const me=await authUser(req)
-  if(body.action==='session')return me?json({ok:true,user:{id:me.userId,username:me.username,display_name:me.displayName}}):json({error:'Neplatná relace.'},401)
+  if(body.action==='session'||body.action==='me')return me?json({ok:true,user:{id:me.userId,username:me.username,display_name:me.displayName}}):json({error:'Neplatná relace.'},401)
   if(body.action==='logout'){if(me)await db.from('hradnik_sessions').delete().eq('token_hash',await tokenHash(me.raw));return json({ok:true})}
   if(!me)return json({error:'Nepřihlášený uživatel.'},401)
   if(body.action==='state_list'){const {data,error}=await db.from('hradnik_user_place_state').select('place_id,status,favorite,rating,visited_on,note').eq('user_id',me.userId);if(error)throw error;return json({ok:true,state:data||[]})}
