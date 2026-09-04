@@ -2,7 +2,7 @@
 const RECENT_KEY='hradnik_recent_places_v1'
 let queued=false
 let lastOverlaySignature=''
-let initialSelectionDone=false
+let initialSelection={map:null,done:false,attempts:0}
 
 function iconFor(kind=''){
   const k=kind.toLocaleLowerCase('cs-CZ')
@@ -97,18 +97,32 @@ function updateCount(){
 }
 
 function selectInitialPlace(){
-  const map=window.__hradnikMap
-  if(!map||map._container?.id!=='map'||!map._container?.isConnected)return
-  // Another layer may have already opened the initial detail. Treat it as the
-  // initial selection so closing it stays closed instead of being reopened.
-  if(document.querySelector('.overlay .sheet')){initialSelectionDone=true;return}
-  if(initialSelectionDone)return
+  const map=initialSelection.map
+  if(!map||map._container?.id!=='map'||!map._container?.isConnected||initialSelection.done)return
   const layers=(map._hradnikReferenceOriginals||[]).filter(layer=>layer?._map&&layer.getLatLng)
-  if(!layers.length)return
+  if(!layers.length){
+    // The reference marker layer is installed after Leaflet creates the map.
+    // Retry only for this map, so a late callback can never open a stale view.
+    if(initialSelection.attempts++<12)setTimeout(()=>selectInitialPlace(),120)
+    return
+  }
   const preferred=layers.find(layer=>String(layer.getTooltip?.()?.getContent?.()||'').toLocaleLowerCase('cs-CZ').includes('karlštejn'))
   const first=preferred||layers[0]
-  initialSelectionDone=true
-  setTimeout(()=>{if(first?._map&&!document.querySelector('.overlay .sheet'))first.fire('click')},60)
+  initialSelection.done=true
+  setTimeout(()=>{
+    if(initialSelection.map!==map||!first?._map)return
+    // A map detail from the old instance is never useful on the newly loaded
+    // map. List details are intentionally left alone.
+    document.querySelector('.overlay[data-hradnik-detail-context="map"]')?.remove()
+    if(!document.querySelector('.overlay .sheet'))first.fire('click')
+  },60)
+}
+
+function requestInitialSelection(event){
+  const {map,selectInitial}=event.detail||{}
+  if(!selectInitial||!map)return
+  initialSelection={map,done:false,attempts:0}
+  selectInitialPlace()
 }
 
 function watchOverlay(){
@@ -127,6 +141,7 @@ function apply(){queued=false;ensureMapLayout();selectInitialPlace();watchOverla
 function schedule(){if(queued)return;queued=true;requestAnimationFrame(apply)}
 const start=()=>{
   new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true})
+  window.addEventListener('hradnik:map-ready',requestInitialSelection)
   apply();[100,220,400,700,1100,1600,2500,4500].forEach(ms=>setTimeout(apply,ms))
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start()

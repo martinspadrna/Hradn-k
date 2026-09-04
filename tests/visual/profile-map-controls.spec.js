@@ -22,7 +22,8 @@ async function boot(page){
 
 async function closeDetail(page){
   const close=page.locator('.overlay .close')
-  if(await close.isVisible().catch(()=>false))await close.click()
+  await expect(close).toBeVisible({timeout:3000})
+  await close.click()
   await expect(page.locator('.overlay')).toHaveCount(0)
 }
 

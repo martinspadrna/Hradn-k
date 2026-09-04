@@ -68,6 +68,9 @@ function callNative(button,tab){
 
 function route(index,nav=currentNav()){
   const bs=buttons(nav);if(bs.length<5)return
+  // The selected monument belongs to the map view. It must not sit above
+  // another destination and intercept its controls after automatic startup.
+  if(index!==0)document.querySelector('.overlay[data-hradnik-detail-context="map"]')?.remove()
   if(index===0){callNative(bs[0],'map');return}
   if(index===1){callNative(bs[1],'catalog');return}
   if(index===2){callNative(bs[2],'mine');setTimeout(()=>document.getElementById('mf')?.click(),120);return}
@@ -123,7 +126,9 @@ function headerControls(header,nav){
 function ensure(){
   addStyle();const app=document.getElementById('app'),header=app?.querySelector('header'),main=app?.querySelector('main'),nav=currentNav();if(!app||!header||!main||!nav)return false
   captureNative(nav);let side=app.querySelector('.redesign-sidebar');if(!side){side=document.createElement('aside');side.className='redesign-sidebar';app.insertBefore(side,main)}if(nav.parentElement!==side)side.insertBefore(nav,side.firstChild);configure(nav);footer(side);headerControls(header,nav);drawer(nav);syncActive(nav)
-  if(!firstMapDone){firstMapDone=true;setTimeout(()=>{if(!document.getElementById('map'))route(0,currentNav())},60)}
+  // Enter the map as part of the initial render, not on a delayed timer.
+  // A delayed route could override the first tap made by a mobile user.
+  if(!firstMapDone&&!document.getElementById('map')){firstMapDone=true;route(0,nav)}
   requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));return true
 }
 function schedule(){if(frameQueued)return;frameQueued=true;requestAnimationFrame(()=>{frameQueued=false;ensure()})}

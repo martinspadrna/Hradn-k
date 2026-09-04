@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 const samplePlaces = [
+  { id: 0, name: 'Karlštejn', kind: 'Hrad', character: 'dochovaný hrad', district: 'Beroun', region: 'Středočeský', municipality: 'Karlštejn', latitude: 49.939, longitude: 14.188, description: 'Gotický hrad Karla IV.', official_url: null, ticket_url: null, opening_hours: null, ticket_prices: null, photo_urls: [] },
   { id: 1, name: 'Hrad Test', kind: 'Hrad', character: 'dochovaný hrad', district: 'Trutnov', region: 'Královéhradecký', municipality: 'Hostinné', latitude: 50.54, longitude: 15.72, description: 'Dochovaný hrad', official_url: null, ticket_url: null, opening_hours: null, ticket_prices: null, photo_urls: [] },
   { id: 2, name: 'Zřícenina Test', kind: 'Zřícenina', character: 'zřícenina', district: 'Jičín', region: 'Královéhradecký', municipality: 'Testov', latitude: 50.44, longitude: 15.35, description: 'Zřícenina hradu', official_url: null, ticket_url: null, opening_hours: null, ticket_prices: null, photo_urls: [] },
   { id: 3, name: 'Zámek Test', kind: 'Zámek', character: 'zaniklý', district: 'Náchod', region: 'Královéhradecký', municipality: 'Testov', latitude: 50.41, longitude: 16.16, description: 'Zaniklý objekt', official_url: null, ticket_url: null, opening_hours: { po: '9:00–17:00' }, ticket_prices: { adult: 180 }, photo_urls: [] },
@@ -17,7 +18,7 @@ async function mockBackend(page, loggedIn = true) {
   await page.route('**/rest/v1/hradnik_places*', route => route.fulfill({
     status: 200,
     contentType: 'application/json',
-    headers: { 'content-range': '0-4/5' },
+    headers: { 'content-range': '0-5/6' },
     body: JSON.stringify(samplePlaces)
   }))
 
@@ -160,6 +161,16 @@ test('map, list detail and settings remain interactive', async ({ page }) => {
   await expect(page.locator('.reference-settings-panel')).toBeVisible()
   await expect(page.locator('.reference-check-update')).toBeVisible()
   await page.locator('.reference-settings-close').click()
+})
+
+test('map selects Karlštejn every time it is opened', async ({ page }) => {
+  const nav = await openApp(page)
+  await expect(page.locator('.overlay .sheet h1')).toHaveText('Karlštejn', { timeout: 10_000 })
+
+  await nav.nth(1).click()
+  await expect(page.locator('#list')).toBeVisible()
+  await page.locator('.redesign-sidebar .redesign-nav > button').nth(0).click()
+  await expect(page.locator('.overlay .sheet h1')).toHaveText('Karlštejn', { timeout: 10_000 })
 })
 
 test('PWA update bridge is installed and guest mode still boots', async ({ page }) => {
