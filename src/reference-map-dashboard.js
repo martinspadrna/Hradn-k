@@ -97,9 +97,12 @@ function updateCount(){
 }
 
 function selectInitialPlace(){
-  if(initialSelectionDone||document.querySelector('.overlay .sheet'))return
   const map=window.__hradnikMap
   if(!map||map._container?.id!=='map'||!map._container?.isConnected)return
+  // Another layer may have already opened the initial detail. Treat it as the
+  // initial selection so closing it stays closed instead of being reopened.
+  if(document.querySelector('.overlay .sheet')){initialSelectionDone=true;return}
+  if(initialSelectionDone)return
   const layers=(map._hradnikReferenceOriginals||[]).filter(layer=>layer?._map&&layer.getLatLng)
   if(!layers.length)return
   const preferred=layers.find(layer=>String(layer.getTooltip?.()?.getContent?.()||'').toLocaleLowerCase('cs-CZ').includes('karlštejn'))
