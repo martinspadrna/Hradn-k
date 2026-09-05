@@ -9,6 +9,7 @@
 .reference-recent-visual{background:radial-gradient(circle at 50% 45%,rgba(229,182,62,.16),transparent 54%),linear-gradient(145deg,#263026,#101614)!important}
 .reference-recent-emblem{display:grid;width:54px;height:60px;place-items:center;background:url('/icons/map-marker-reference.svg') center/contain no-repeat}
 .reference-recent-emblem img{width:26px!important;height:26px!important;object-fit:contain!important;filter:invert(75%) sepia(61%) saturate(473%) hue-rotate(2deg) brightness(97%) contrast(90%)!important}
+.reference-recent-photo{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important}
 .reference-recent-heart{width:19px!important;height:19px!important;object-fit:contain!important}
 .bigIcon img{filter:invert(75%) sepia(61%) saturate(473%) hue-rotate(2deg) brightness(97%) contrast(90%)!important}
 

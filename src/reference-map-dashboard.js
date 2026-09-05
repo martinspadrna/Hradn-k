@@ -18,7 +18,9 @@ function saveRecent(item){
   localStorage.setItem(RECENT_KEY,JSON.stringify(next))
   renderRecent()
 }
-function openBySearch(name){
+function openRecent(item){
+  const name=item?.name
+  if(!name)return
   const nav=document.querySelector('.redesign-sidebar>.redesign-nav')
   const listButton=nav?.querySelectorAll(':scope>button')?.[1]
   listButton?.click()
@@ -26,7 +28,11 @@ function openBySearch(name){
     const input=document.getElementById('search')
     if(!input)return
     input.value=name;input.dispatchEvent(new Event('input',{bubbles:true}))
-    setTimeout(()=>document.querySelector('#list .placeMain')?.click(),100)
+    setTimeout(()=>{
+      document.querySelector('#list .placeMain')?.click()
+      // Preserve the opened detail and return to its exact point on the map.
+      setTimeout(()=>nav?.querySelector(':scope>button')?.click(),140)
+    },100)
   },160)
 }
 
@@ -34,6 +40,9 @@ function renderRecent(){
   const rail=document.querySelector('.reference-recent-list')
   if(!rail)return
   const items=recent()
+  const signature=JSON.stringify(items)
+  if(rail.dataset.recentSignature===signature)return
+  rail.dataset.recentSignature=signature
   rail.innerHTML=''
   if(!items.length){
     rail.innerHTML='<div class="reference-recent-empty"><img src="/icons/favorites.svg" alt=""><span><b>Zatím tu nic není</b><small>Otevřete památku na mapě a objeví se tady pro rychlý návrat.</small></span></div>'
@@ -42,8 +51,9 @@ function renderRecent(){
   items.forEach(item=>{
     const button=document.createElement('button')
     button.type='button';button.className='reference-recent-card'
-    button.innerHTML=`<div class="reference-recent-visual"><span class="reference-recent-emblem"><img src="${iconFor(item.kind)}" alt=""></span></div><div class="reference-recent-copy"><b>${escapeHtml(item.name)}</b><span>${escapeHtml(item.kind||'Historické místo')}</span><small>${escapeHtml(item.location||'')}</small></div><img class="reference-recent-heart" src="/icons/favorites.svg" alt="">`
-    button.onclick=()=>openBySearch(item.name)
+    const visual=item.photo?`<img class="reference-recent-photo" src="${escapeHtml(item.photo)}" alt="${escapeHtml(item.name)} – fotografie">`:`<span class="reference-recent-emblem"><img src="${iconFor(item.kind)}" alt=""></span>`
+    button.innerHTML=`<div class="reference-recent-visual">${visual}</div><div class="reference-recent-copy"><b>${escapeHtml(item.name)}</b><span>${escapeHtml(item.kind||'Historické místo')}</span><small>${escapeHtml(item.location||'')}</small></div><img class="reference-recent-heart" src="/icons/favorites.svg" alt="">`
+    button.onclick=()=>openRecent(item)
     rail.appendChild(button)
   })
 }
@@ -103,8 +113,9 @@ function watchOverlay(){
   const name=sheet.querySelector('h1')?.textContent?.trim()
   const kind=sheet.querySelector('.eyebrow')?.textContent?.trim()
   const location=sheet.querySelector('h1 + .muted')?.textContent?.trim()||sheet.querySelector('.muted')?.textContent?.trim()
-  const signature=`${name}|${kind}|${location}`
-  if(name&&signature!==lastOverlaySignature){lastOverlaySignature=signature;saveRecent({name,kind,location})}
+  const photo=sheet.querySelector('.detailPhoto')?.src||''
+  const signature=`${name}|${kind}|${location}|${photo}`
+  if(name&&signature!==lastOverlaySignature){lastOverlaySignature=signature;saveRecent({name,kind,location,photo})}
 }
 
 function apply(){queued=false;ensureMapLayout();watchOverlay()}

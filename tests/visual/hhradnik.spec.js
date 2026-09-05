@@ -203,6 +203,15 @@ test('selected search result has a photo and carries its map focus', async ({ pa
     const center = window.__hradnikMap?.getCenter()
     return center && Math.abs(center.lat - 50.54) < 0.002 && Math.abs(center.lng - 15.72) < 0.002
   })).toBe(true)
+
+  const recent = page.locator('.reference-recent-card', { hasText: 'Hrad Test' })
+  await expect(recent.locator('.reference-recent-photo')).toBeVisible()
+  await recent.click()
+  await expect(page.locator('.overlay .sheet h1')).toHaveText('Hrad Test')
+  await expect.poll(async () => page.evaluate(() => {
+    const center = window.__hradnikMap?.getCenter()
+    return center && Math.abs(center.lat - 50.54) < 0.002 && Math.abs(center.lng - 15.72) < 0.002
+  })).toBe(true)
 })
 
 test('PWA update bridge is installed and guest mode still boots', async ({ page }) => {
